@@ -262,6 +262,9 @@ class FeedGateService : AccessibilityService() {
                     .format(java.util.Date())
             )
             .append(' ').append(pkg).append(" =====\n")
+        if (pkg == Detectors.PKG_INSTAGRAM) {
+            sb.append("VERDICTS: ").append(Detectors.debugState(root)).append('\n')
+        }
         Detectors.buildTree(root, sb)
         f.appendText(sb.toString())
         if (f.length() > 900_000) f.writeText(f.readText().takeLast(400_000))

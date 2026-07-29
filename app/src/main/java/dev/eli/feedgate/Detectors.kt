@@ -103,6 +103,36 @@ object Detectors {
         for (i in 0 until node.childCount) buildTree(node.getChild(i), sb, depth + 1)
     }
 
+    /** One-line detector verdicts + raw signals — prepended to every dump
+     *  so a shared dump immediately shows WHICH predicate misfired. */
+    fun debugState(root: AccessibilityNodeInfo): String = buildString {
+        fun safe(name: String, f: () -> Boolean) {
+            append(name).append('=')
+            append(runCatching(f).getOrElse { "err" })
+            append(' ')
+        }
+        safe("home") { igHomeFeedOpen(root) }
+        safe("clipsVis") { igClipsViewerOpen(root) }
+        safe("clipsTab") { igReelsTabSelected(root) }
+        safe("direct") { igDirectOpen(root) }
+        safe("explore") { igExploreOpen(root) }
+        safe("story") { igStoryViewerOpen(root) }
+        fun node(s: String) {
+            append(s.substringAfterLast('/')).append('[')
+            val n = findByIdSuffix(root, s)
+            append(
+                if (n == null) "absent"
+                else "sel=${n.isSelected},vis=${n.isVisibleToUser}"
+            )
+            append("] ")
+        }
+        node(":id/feed_tab"); node(":id/clips_tab"); node(":id/direct_tab")
+        node(":id/search_tab"); node(":id/clips_viewer_view_pager")
+        node(":id/clips_video_container")
+        node(":id/inbox_refreshable_thread_list_recyclerview")
+        node(":id/action_bar_title_view")
+    }
+
     /** Dump the node tree to logcat (inspector mode). */
     fun dumpTree(node: AccessibilityNodeInfo?, depth: Int = 0) {
         if (node == null || depth > 25) return
