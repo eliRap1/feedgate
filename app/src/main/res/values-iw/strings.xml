@@ -34,7 +34,9 @@
     <string name="sw_tt_auto_inbox">מעבר אוטומטי ל־Inbox כשהפיד נפתח</string>
 
     <string name="section_debug">דיבאג</string>
-    <string name="sw_inspector">מצב Inspector — שליחת עץ התצוגה ל־logcat</string>
+    <string name="sw_inspector">מצב Inspector — הקלטת עצי תצוגה</string>
+    <string name="btn_share_dump">שיתוף עץ התצוגה</string>
+    <string name="dump_missing">אין הקלטה עדיין — יש להפעיל מצב Inspector, לפתוח את אינסטגרם ולחזור.</string>
     <string name="debug_hint">אם חסימה מפסיקה לעבוד אחרי עדכון אפליקציה: יש להפעיל מצב Inspector, לפתוח את המסך הבעייתי, להריץ adb logcat -s FeedGate ולעדכן את הסלקטורים ב־Detectors.kt.</string>
 
     <!-- Daybrief -->

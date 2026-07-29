@@ -326,6 +326,14 @@
                     android:layout_marginTop="@dimen/space_1"
                     android:text="@string/sw_inspector" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShareDump"
+                    style="@style/Widget.FeedGate.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/btn_share_dump" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

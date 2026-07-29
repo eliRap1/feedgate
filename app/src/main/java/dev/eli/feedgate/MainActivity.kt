@@ -102,6 +102,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<Button>(R.id.btnShareDump).setOnClickListener {
+            val src = java.io.File(filesDir, "inspector.txt")
+            if (!src.exists()) {
+                Toast.makeText(this, R.string.dump_missing, Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            val out = java.io.File(java.io.File(cacheDir, "updates").apply { mkdirs() }, "feedgate-tree.txt")
+            src.copyTo(out, overwrite = true)
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                this, "$packageName.fileprovider", out
+            )
+            startActivity(
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(Intent.EXTRA_STREAM, uri)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),
+                    getString(R.string.btn_share_dump)
+                )
+            )
+        }
+
         findViewById<TextView>(R.id.versionLine).text =
             getString(R.string.version_line, currentVersion())
         findViewById<Button>(R.id.btnUpdate).setOnClickListener {

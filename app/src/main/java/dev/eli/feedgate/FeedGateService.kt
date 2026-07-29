@@ -25,6 +25,7 @@ class FeedGateService : AccessibilityService() {
     private var overlay: View? = null
     private var lastBlockAt = 0L
     private var lastAutoInboxAt = 0L
+    private var lastFileDumpAt = 0L
 
     /** Last time a DM surface was on screen — powers the one-reel DM grace. */
     private var lastDirectSeenAt = 0L
@@ -49,9 +50,16 @@ class FeedGateService : AccessibilityService() {
         if (root.packageName?.toString() != pkg) return
 
         try {
-            if (prefs.inspectorMode && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-                Log.d(Detectors.TAG, "===== window changed: $pkg / ${event.className} =====")
-                Detectors.dumpTree(root)
+            if (prefs.inspectorMode) {
+                if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                    Log.d(Detectors.TAG, "===== window changed: $pkg / ${event.className} =====")
+                    Detectors.dumpTree(root)
+                }
+                val now = System.currentTimeMillis()
+                if (now - lastFileDumpAt > 3_000) {
+                    lastFileDumpAt = now
+                    saveInspectorDump(pkg, root)
+                }
             }
             when {
                 pkg == Detectors.PKG_INSTAGRAM -> handleInstagram(event, root)
@@ -242,6 +250,21 @@ class FeedGateService : AccessibilityService() {
         feedCoverTop = -1
         feedCoverBottom = -1
         runCatching { (getSystemService(WINDOW_SERVICE) as WindowManager).removeView(v) }
+    }
+
+    /** Rolling on-device inspector dump — shareable from the app, no adb. */
+    private fun saveInspectorDump(pkg: String, root: AccessibilityNodeInfo) = runCatching {
+        val f = java.io.File(filesDir, "inspector.txt")
+        val sb = StringBuilder()
+        sb.append("\n===== ")
+            .append(
+                java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US)
+                    .format(java.util.Date())
+            )
+            .append(' ').append(pkg).append(" =====\n")
+        Detectors.buildTree(root, sb)
+        f.appendText(sb.toString())
+        if (f.length() > 900_000) f.writeText(f.readText().takeLast(400_000))
     }
 
     /** Deep-link into the Instagram DM inbox. Returns false if IG rejects it. */

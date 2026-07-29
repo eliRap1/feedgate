@@ -67,6 +67,28 @@ object Detectors {
     private fun selectedTab(root: AccessibilityNodeInfo, descs: Set<String>): Boolean =
         findByDesc(root, descs, requireSelected = true) != null
 
+    /** Find a node whose TEXT or description matches — for visible labels. */
+    private fun findByTextOrDesc(root: AccessibilityNodeInfo, strings: Set<String>): AccessibilityNodeInfo? {
+        val stack = ArrayDeque<AccessibilityNodeInfo>()
+        stack.add(root)
+        while (stack.isNotEmpty()) {
+            val n = stack.removeLast()
+            val t = n.text?.toString()
+            val d = n.contentDescription?.toString()
+            if (strings.any { s ->
+                    t?.equals(s, true) == true || d?.equals(s, true) == true ||
+                        d?.startsWith("$s,") == true
+                }
+            ) return n
+            for (i in 0 until n.childCount) n.getChild(i)?.let { stack.add(it) }
+        }
+        return null
+    }
+
+    // The story-tray's own label — a home-surface signature that survives
+    // Instagram's internal view-ID renames. Locale-dependent by design.
+    private val IG_YOUR_STORY = setOf("Your story", "הסטורי שלך", "הסיפור שלך")
+
     // Single DFS for all suffixes — this runs on every event, keep it one pass.
     private fun hasIdSuffix(root: AccessibilityNodeInfo, vararg suffixes: String): Boolean {
         val stack = ArrayDeque<AccessibilityNodeInfo>()
@@ -78,6 +100,18 @@ object Detectors {
             for (i in 0 until n.childCount) n.getChild(i)?.let { stack.add(it) }
         }
         return false
+    }
+
+    /** Build the node tree into [sb] — for the shareable inspector dump. */
+    fun buildTree(node: AccessibilityNodeInfo?, sb: StringBuilder, depth: Int = 0) {
+        if (node == null || depth > 25) return
+        sb.append(" ".repeat(depth * 2))
+            .append(node.className).append(" id=").append(node.viewIdResourceName)
+            .append(" desc=").append(node.contentDescription)
+            .append(" sel=").append(node.isSelected)
+            .append(" text=").append(node.text?.toString()?.take(40))
+            .append('\n')
+        for (i in 0 until node.childCount) buildTree(node.getChild(i), sb, depth + 1)
     }
 
     /** Dump the node tree to logcat (inspector mode). */
@@ -121,7 +155,10 @@ object Detectors {
         // The DM inbox, story viewer and camera must NOT match:
         if (igStoryViewerOpen(root) || igDirectOpen(root)) return false
         if (selectedTab(root, setOf("Home", "בית"))) return true
-        return hasIdSuffix(root, ":id/feed_swipe_refresh_layout", ":id/main_feed_recycler")
+        if (hasIdSuffix(root, ":id/feed_swipe_refresh_layout", ":id/main_feed_recycler")) return true
+        // ID-independent signature: the story tray's "Your story" label is
+        // only rendered on the home surface.
+        return findByTextOrDesc(root, IG_YOUR_STORY) != null
     }
 
     /** Stories viewer — ALLOWED. (Instagram internally names stories "reel".) */
@@ -164,6 +201,13 @@ object Detectors {
             val r = Rect()
             tray.getBoundsInScreen(r)
             if (r.bottom > 0) return r.bottom
+        }
+        // Fallback: bottom edge of the "Your story" label = tray bottom.
+        val label = findByTextOrDesc(root, IG_YOUR_STORY)
+        if (label != null) {
+            val r = Rect()
+            label.getBoundsInScreen(r)
+            if (r.bottom > 0) return r.bottom + 8
         }
         return (screenHeight * 0.30f).toInt()
     }

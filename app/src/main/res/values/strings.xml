@@ -34,7 +34,9 @@
     <string name="sw_tt_auto_inbox">Auto-jump to Inbox when feed opens</string>
 
     <string name="section_debug">Debug</string>
-    <string name="sw_inspector">Inspector mode — dump view tree to logcat</string>
+    <string name="sw_inspector">Inspector mode — record view trees</string>
+    <string name="btn_share_dump">Share view-tree dump</string>
+    <string name="dump_missing">No dump yet — turn on Inspector mode, browse Instagram, then come back.</string>
     <string name="debug_hint">If a block stops working after an app update: turn on Inspector mode, open the offending screen, run adb logcat -s FeedGate, then update the selectors in Detectors.kt.</string>
 
     <!-- Daybrief -->
