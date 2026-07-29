@@ -143,6 +143,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnEnableService).visibility =
             if (enabled) View.GONE else View.VISIBLE
         refreshPassStatus()
+        findViewById<TextView>(R.id.verdictLine).text = prefs.lastVerdict
         // Quiet update check, at most once per 6h, only when opening the app.
         if (System.currentTimeMillis() - prefs.lastUpdateCheck > 6 * 60 * 60_000L) {
             prefs.lastUpdateCheck = System.currentTimeMillis()

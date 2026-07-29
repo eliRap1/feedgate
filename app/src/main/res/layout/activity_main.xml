@@ -335,6 +335,15 @@
                     android:text="@string/btn_share_dump" />
 
                 <TextView
+                    android:id="@+id/verdictLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                    android:textIsSelectable="true"
+                    android:textSize="11sp" />
+
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_2"

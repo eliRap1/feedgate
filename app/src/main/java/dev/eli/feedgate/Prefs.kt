@@ -71,6 +71,11 @@ class Prefs(context: Context) {
         get() = sp.getLong(KEY_LAST_UPDATE_CHECK, 0L)
         set(v) = sp.edit().putLong(KEY_LAST_UPDATE_CHECK, v).apply()
 
+    /** Latest detector verdicts from the service — shown on the Debug card. */
+    var lastVerdict: String
+        get() = sp.getString(KEY_LAST_VERDICT, "") ?: ""
+        set(v) = sp.edit().putString(KEY_LAST_VERDICT, v).apply()
+
     companion object {
         const val KEY_IG_REELS = "block_ig_reels"
         const val KEY_IG_EXPLORE = "block_ig_explore"
@@ -84,5 +89,6 @@ class Prefs(context: Context) {
         const val KEY_DM_GRACE = "dm_grace"
         const val KEY_PASS_UNTIL = "pass_until"
         const val KEY_LAST_UPDATE_CHECK = "last_update_check"
+        const val KEY_LAST_VERDICT = "last_verdict"
     }
 }

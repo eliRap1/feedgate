@@ -166,15 +166,23 @@ object Detectors {
             visibleById(root, ":id/explore_grid_recycler_view") != null
 
     /**
-     * Home feed on screen: Home tab selected AND the home action bar is
-     * actually visible (it disappears under story viewers and sheets),
-     * and the clips viewer isn't covering everything.
+     * The bottom tab bar exists in the tree only on tabbed surfaces —
+     * fullscreen viewers (stories, shared reels, DM threads) drop it
+     * entirely (dump-verified 21:11:54 / 21:11:57 / 21:12:30).
+     */
+    fun igTabBarPresent(root: AccessibilityNodeInfo): Boolean =
+        findByIdSuffix(root, ":id/feed_tab") != null
+
+    /**
+     * Home feed on screen: Home tab selected and no clips viewer on top.
+     * Deliberately does NOT require the top action bar — Instagram hides
+     * it while scrolling (dump-verified 21:12:00: feed_tab selected, bar
+     * gone, feed fully browsable).
      */
     fun igHomeFeedOpen(root: AccessibilityNodeInfo): Boolean {
-        if (!tabSel(root, ":id/feed_tab")) return false
-        if (igClipsViewerOpen(root)) return false
-        return findByDesc(root, setOf("Instagram Home feed"))?.isVisibleToUser == true ||
-            visibleById(root, ":id/action_bar_title_view") != null
+        val tab = findByIdSuffix(root, ":id/feed_tab") ?: return false
+        if (!tab.isSelected || !tab.isVisibleToUser) return false
+        return !igClipsViewerOpen(root)
     }
 
     /** Stories viewer — ALLOWED. (Instagram internally names stories "reel".) */

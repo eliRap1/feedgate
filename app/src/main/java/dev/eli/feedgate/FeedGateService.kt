@@ -26,6 +26,7 @@ class FeedGateService : AccessibilityService() {
     private var lastBlockAt = 0L
     private var lastAutoInboxAt = 0L
     private var lastFileDumpAt = 0L
+    private var lastVerdictAt = 0L
 
     /** Last time a DM surface was on screen — powers the one-reel DM grace. */
     private var lastDirectSeenAt = 0L
@@ -34,6 +35,8 @@ class FeedGateService : AccessibilityService() {
     /** When the current grace was granted — the pager fires a "settle" scroll
      *  right as the reel opens, which must not count as the ending swipe. */
     private var graceStartedAt = 0L
+    /** No new grace shortly after a swipe-block — blocks exit re-arming. */
+    private var graceCooldownUntil = 0L
 
     private fun passActive() = System.currentTimeMillis() < prefs.passUntil
 
@@ -62,7 +65,20 @@ class FeedGateService : AccessibilityService() {
                 }
             }
             when {
-                pkg == Detectors.PKG_INSTAGRAM -> handleInstagram(event, root)
+                pkg == Detectors.PKG_INSTAGRAM -> {
+                    // Live verdict for the Debug card — screenshot-friendly
+                    // diagnosis without digging through dump files.
+                    val now = System.currentTimeMillis()
+                    if (now - lastVerdictAt > 1_000) {
+                        lastVerdictAt = now
+                        runCatching {
+                            prefs.lastVerdict =
+                                java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US)
+                                    .format(java.util.Date()) + "  " + Detectors.debugState(root)
+                        }
+                    }
+                    handleInstagram(event, root)
+                }
                 pkg in Detectors.PKG_TIKTOK -> handleTikTok(root)
             }
         } catch (t: Throwable) {
@@ -92,13 +108,16 @@ class FeedGateService : AccessibilityService() {
             // first swipe to the NEXT reel consumes the grace and blocks.
             if (prefs.dmGrace) {
                 val now = System.currentTimeMillis()
-                // Two ways to earn the one-reel grace:
-                //  1. We saw a DM surface moments ago (ID-based, can drift).
-                //  2. ID-independent fallback: the clips viewer is open but
-                //     the Reels tab is NOT selected — a reel opened from a
-                //     DM/share/profile, not from browsing the Reels tab.
-                val fromShare = Detectors.igClipsViewerOpen(root) &&
-                    !Detectors.igReelsTabSelected(root)
+                // Browsing Reels deliberately (bottom tab) never rides grace.
+                if (dmGraceActive && Detectors.igReelsTabSelected(root)) {
+                    dmGraceActive = false
+                }
+                // Shared-reel signature (dump-verified): the clips viewer is
+                // on screen and the ENTIRE bottom tab bar is gone from the
+                // tree. Browsing keeps clips_tab selected; the post-Back
+                // transition keeps feed_tab selected — both have the bar.
+                val fromShare = !Detectors.igTabBarPresent(root) &&
+                    now > graceCooldownUntil
                 if (!dmGraceActive && (now - lastDirectSeenAt < 8_000 || fromShare)) {
                     dmGraceActive = true
                     graceStartedAt = now
@@ -118,6 +137,8 @@ class FeedGateService : AccessibilityService() {
                             src?.className?.contains("ViewPager") == true)
                     if (pagerScroll && now - graceStartedAt > 2_000) {
                         dmGraceActive = false
+                        // Don't instantly re-arm during the exit transition.
+                        graceCooldownUntil = now + 3_000
                         block("Instagram Reels (swiped past shared reel)")
                     }
                     return
@@ -126,12 +147,8 @@ class FeedGateService : AccessibilityService() {
             block("Instagram Reels")
             return
         }
-        // Leaving Reels for a browsing surface ends any remaining grace.
-        if (dmGraceActive &&
-            (Detectors.igHomeFeedOpen(root) || Detectors.igExploreOpen(root))
-        ) {
-            dmGraceActive = false
-        }
+        // Grace lives only while the reel viewer is actually on screen.
+        dmGraceActive = false
         if (prefs.blockIgExplore && Detectors.igExploreOpen(root)) {
             block("Instagram Explore")
             return
