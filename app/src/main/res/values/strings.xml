@@ -23,7 +23,9 @@
     <string name="sw_ig_reels">Block Reels</string>
     <string name="sw_ig_explore">Block Explore</string>
     <string name="sw_dm_grace">Allow reels opened from DMs — one reel, swiping blocks</string>
-    <string name="sw_ig_feed_scroll">Block feed scrolling — story tray stays usable</string>
+    <string name="sw_ig_feed_scroll">Black out the feed — stories stay usable</string>
+    <string name="cover_title">Feed is off.</string>
+    <string name="cover_hint">Stories, DMs and the rest still work.</string>
     <string name="btn_ig_dms">Open Instagram DMs</string>
     <string name="ig_not_installed">Instagram not installed?</string>
 

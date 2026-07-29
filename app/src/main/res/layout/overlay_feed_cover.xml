@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ink"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/space_7">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/overlay_overline"
+        android:textAppearance="@style/TextAppearance.FeedGate.Overline" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="@string/cover_title"
+        android:textColor="@color/bone"
+        android:textSize="22sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_1"
+        android:gravity="center"
+        android:text="@string/cover_hint"
+        android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_5"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/coverBrief"
+            style="@style/Widget.FeedGate.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_3"
+            android:layout_weight="1"
+            android:text="@string/brief_screen_title" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/coverDms"
+            style="@style/Widget.FeedGate.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/dest_dms" />
+    </LinearLayout>
+</LinearLayout>

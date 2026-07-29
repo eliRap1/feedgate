@@ -23,7 +23,9 @@
     <string name="sw_ig_reels">חסימת רילס</string>
     <string name="sw_ig_explore">חסימת Explore</string>
     <string name="sw_dm_grace">לאפשר רילס שנפתח מהודעה — רילס אחד, החלקה חוסמת</string>
-    <string name="sw_ig_feed_scroll">חסימת גלילת פיד — שורת הסטוריז נשארת זמינה</string>
+    <string name="sw_ig_feed_scroll">השחרת הפיד — הסטוריז נשארים זמינים</string>
+    <string name="cover_title">הפיד כבוי.</string>
+    <string name="cover_hint">סטוריז, הודעות וכל השאר עדיין עובדים.</string>
     <string name="btn_ig_dms">פתיחת הודעות אינסטגרם</string>
     <string name="ig_not_installed">אינסטגרם לא מותקן?</string>
 

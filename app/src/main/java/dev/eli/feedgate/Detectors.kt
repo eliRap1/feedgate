@@ -1,5 +1,6 @@
 package dev.eli.feedgate
 
+import android.graphics.Rect
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -149,6 +150,33 @@ object Detectors {
         // Heuristic: vertical scrollable container on the home surface.
         return source.className?.contains("RecyclerView") == true ||
             source.className?.contains("ListView") == true
+    }
+
+    /**
+     * Top edge for the feed blackout on the home surface: just under the
+     * story tray when it's findable, otherwise a 30%-of-screen fallback
+     * that still leaves the tray region usable.
+     */
+    fun igFeedCoverTop(root: AccessibilityNodeInfo, screenHeight: Int): Int {
+        val tray = findByIdSuffix(root, ":id/stories_tray_recyclerview")
+            ?: findByIdSuffix(root, ":id/tray_recyclerview")
+        if (tray != null) {
+            val r = Rect()
+            tray.getBoundsInScreen(r)
+            if (r.bottom > 0) return r.bottom
+        }
+        return (screenHeight * 0.30f).toInt()
+    }
+
+    /** Bottom edge for the blackout: top of the bottom tab bar. */
+    fun igBottomNavTop(root: AccessibilityNodeInfo, screenHeight: Int): Int {
+        val home = findByDesc(root, setOf("Home", "בית"))
+        if (home != null) {
+            val r = Rect()
+            home.getBoundsInScreen(r)
+            if (r.top > 0) return r.top
+        }
+        return (screenHeight * 0.92f).toInt()
     }
 
     // ---------- TikTok ----------

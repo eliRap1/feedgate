@@ -66,6 +66,8 @@ class FeedGateService : AccessibilityService() {
     // ---------- Instagram ----------
 
     private fun handleInstagram(event: AccessibilityEvent, root: AccessibilityNodeInfo) {
+        // The feed blackout panel tracks the home surface on every event.
+        updateFeedCover(root)
         // DM bookkeeping runs even during a pass so the grace timestamp never
         // freezes and grace works right after a pass expires.
         if (Detectors.igDirectOpen(root)) {
@@ -154,6 +156,92 @@ class FeedGateService : AccessibilityService() {
             android.content.Intent(this, BriefActivity::class.java)
                 .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         )
+    }
+
+    // ---------- persistent feed blackout ----------
+
+    private var feedCover: View? = null
+    private var feedCoverTop = -1
+    private var feedCoverBottom = -1
+
+    /**
+     * Instagram-only events reach this service, so leaving Instagram emits
+     * nothing — this poll retires the panel when IG is no longer in front.
+     */
+    private val coverPoll = object : Runnable {
+        override fun run() {
+            val root = rootInActiveWindow
+            val onHome = root != null &&
+                root.packageName?.toString() == Detectors.PKG_INSTAGRAM &&
+                runCatching { Detectors.igHomeFeedOpen(root) }.getOrDefault(false)
+            if (!onHome || passActive() || !prefs.blockIgFeedScroll) {
+                removeFeedCover()
+            } else {
+                handler.postDelayed(this, 700)
+            }
+        }
+    }
+
+    private fun updateFeedCover(root: AccessibilityNodeInfo) {
+        val want = prefs.blockIgFeedScroll && !passActive() &&
+            runCatching { Detectors.igHomeFeedOpen(root) }.getOrDefault(false)
+        if (!want) {
+            removeFeedCover()
+            return
+        }
+        val screenH = resources.displayMetrics.heightPixels
+        val top = Detectors.igFeedCoverTop(root, screenH)
+        val bottom = Detectors.igBottomNavTop(root, screenH)
+        if (bottom - top < 200) return // implausible geometry — don't cover
+        showFeedCover(top, bottom)
+    }
+
+    private fun showFeedCover(top: Int, bottom: Int) {
+        val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        feedCover?.let { existing ->
+            if (kotlin.math.abs(top - feedCoverTop) > 12 ||
+                kotlin.math.abs(bottom - feedCoverBottom) > 12
+            ) {
+                val lp = existing.layoutParams as WindowManager.LayoutParams
+                lp.y = top
+                lp.height = bottom - top
+                runCatching { wm.updateViewLayout(existing, lp) }
+                feedCoverTop = top
+                feedCoverBottom = bottom
+            }
+            return
+        }
+        val view = LayoutInflater.from(this).inflate(R.layout.overlay_feed_cover, null)
+        view.findViewById<View>(R.id.coverBrief)?.setOnClickListener { openBrief() }
+        view.findViewById<View>(R.id.coverDms)?.setOnClickListener { openIgDms() }
+        val lp = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            bottom - top,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.OPAQUE
+        )
+        lp.gravity = android.view.Gravity.TOP or android.view.Gravity.START
+        lp.y = top
+        runCatching {
+            wm.addView(view, lp)
+            feedCover = view
+            feedCoverTop = top
+            feedCoverBottom = bottom
+            view.alpha = 0f
+            view.animate().alpha(1f).setDuration(160).start()
+            handler.removeCallbacks(coverPoll)
+            handler.postDelayed(coverPoll, 700)
+        }
+    }
+
+    private fun removeFeedCover() {
+        handler.removeCallbacks(coverPoll)
+        val v = feedCover ?: return
+        feedCover = null
+        feedCoverTop = -1
+        feedCoverBottom = -1
+        runCatching { (getSystemService(WINDOW_SERVICE) as WindowManager).removeView(v) }
     }
 
     /** Deep-link into the Instagram DM inbox. Returns false if IG rejects it. */
@@ -250,12 +338,13 @@ class FeedGateService : AccessibilityService() {
     }
 
     override fun onDestroy() {
-        // Don't leak a stuck overlay if the service dies inside the 900ms window.
+        // Don't leak stuck overlays if the service dies mid-flight.
         handler.removeCallbacksAndMessages(null)
         overlay?.let { v ->
             runCatching { (getSystemService(WINDOW_SERVICE) as WindowManager).removeView(v) }
         }
         overlay = null
+        removeFeedCover()
         super.onDestroy()
     }
 
