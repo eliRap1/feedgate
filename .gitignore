@@ -7,3 +7,9 @@ local.properties
 captures/
 .kotlin/
 dist/
+
+# FakeGram harness
+fakegram/app/build/
+fakegram/.gradle/
+fakegram/local.properties
+fakegram/build/

@@ -40,6 +40,15 @@ class FeedGateService : AccessibilityService() {
 
     private fun passActive() = System.currentTimeMillis() < prefs.passUntil
 
+    /** Services have no Material theme — inflating Material components from
+     *  the raw service context throws ThemeEnforcement. Always inflate
+     *  overlay layouts through this. */
+    private val themedInflater by lazy {
+        LayoutInflater.from(
+            android.view.ContextThemeWrapper(this, R.style.Theme_FeedGate)
+        )
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.i(Detectors.TAG, "FeedGate service connected")
@@ -236,14 +245,17 @@ class FeedGateService : AccessibilityService() {
             }
             return
         }
-        val view = LayoutInflater.from(this).inflate(R.layout.overlay_feed_cover, null)
+        val view = themedInflater.inflate(R.layout.overlay_feed_cover, null)
         view.findViewById<View>(R.id.coverBrief)?.setOnClickListener { openBrief() }
         view.findViewById<View>(R.id.coverDms)?.setOnClickListener { openIgDms() }
         val lp = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             bottom - top,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            // LAYOUT_IN_SCREEN: node bounds are screen coordinates — without
+            // it the window is offset by the status bar and posts peek out.
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.OPAQUE
         )
         lp.gravity = android.view.Gravity.TOP or android.view.Gravity.START
@@ -344,7 +356,7 @@ class FeedGateService : AccessibilityService() {
     private fun flashOverlay(showBack: Boolean) {
         if (overlay != null) return
         val wm = getSystemService(WINDOW_SERVICE) as WindowManager
-        val view = LayoutInflater.from(this).inflate(R.layout.overlay_block, null)
+        val view = themedInflater.inflate(R.layout.overlay_block, null)
         val lp = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,

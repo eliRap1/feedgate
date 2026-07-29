@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="feed_tab" />
+    <item type="id" name="clips_tab" />
+    <item type="id" name="direct_tab" />
+    <item type="id" name="search_tab" />
+    <item type="id" name="profile_tab" />
+    <item type="id" name="action_bar_title_view" />
+    <item type="id" name="clips_viewer_view_pager" />
+    <item type="id" name="clips_video_container" />
+    <item type="id" name="inbox_refreshable_thread_list_recyclerview" />
+    <item type="id" name="reel_viewer_root" />
+</resources>
