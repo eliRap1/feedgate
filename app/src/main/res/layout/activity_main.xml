@@ -299,6 +299,361 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- The gate log: on-device only, opt-out, resettable.
+             NOT a score - it counts how often the gate had to hold. -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.FeedGate.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            app:contentPadding="@dimen/card_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_stats"
+                    android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+
+                <TextView
+                    android:id="@+id/statEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/stat_empty"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Caption"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/statBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/statToday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Display" />
+
+                    <TextView
+                        android:id="@+id/statTodayLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stat_today_label"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="@dimen/space_4"
+                        android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD0"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD1"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD2"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD3"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD4"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD5"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp">
+
+                        <View
+                            android:id="@+id/barD6"
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/bone_faint" />
+                    </FrameLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/hairline" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_1"
+                        android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/barL0"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/barL1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/barL2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/barL3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/barL4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/barL5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    <TextView
+                        android:id="@+id/barL6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint"
+                        android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/space_4"
+                        android:background="@color/hairline" />
+
+                <LinearLayout
+                    android:id="@+id/rowReels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/stat_reels"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Body"
+                        android:textColor="@color/bone_dim" />
+
+                    <TextView
+                        android:id="@+id/valReels"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/rowFeed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/stat_feed"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Body"
+                        android:textColor="@color/bone_dim" />
+
+                    <TextView
+                        android:id="@+id/valFeed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/rowExplore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/stat_explore"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Body"
+                        android:textColor="@color/bone_dim" />
+
+                    <TextView
+                        android:id="@+id/valExplore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/rowTiktok"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/stat_tiktok"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Body"
+                        android:textColor="@color/bone_dim" />
+
+                    <TextView
+                        android:id="@+id/valTiktok"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono" />
+                </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/statTotal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_4"
+                        android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+                        android:textColor="@color/bone_faint" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/stat_not_a_score"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swStats"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/sw_stats" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStatsReset"
+                    style="@style/Widget.FeedGate.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_stats_reset" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Debug -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.FeedGate.Card"

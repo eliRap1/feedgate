@@ -65,6 +65,20 @@
     <string name="topic_gym">כושר</string>
     <string name="topic_security">אבטחת מידע</string>
 
+    <!-- יומן השער (מונה מקומי) — בכוונה בלי שפת ניקוד: בלי רצפים, בלי יעדים. -->
+    <string name="section_stats">יומן השער</string>
+    <string name="stat_today_label">פעמים שהשער עצר היום</string>
+    <string name="stat_empty">עוד לא נחסם כלום — היומן מתמלא מעצמו עם השימוש.</string>
+    <string name="stat_not_a_score">זה לא ניקוד. זה סופר כמה פעמים השער נדרש לעצור, לא איך הצלחתם. רצף חסימות באותה ישיבה נספר פעם אחת.</string>
+    <string name="stat_total">%1$d בסך הכול · מאז %2$s</string>
+    <string name="stat_reels">רילס</string>
+    <string name="stat_feed">פיד</string>
+    <string name="stat_explore">Explore</string>
+    <string name="stat_tiktok">טיקטוק</string>
+    <string name="sw_stats">לשמור את היומן</string>
+    <string name="btn_stats_reset">מחיקת היומן</string>
+    <string name="stats_cleared">היומן נמחק</string>
+
     <!-- App / updates -->
     <string name="section_app">אפליקציה</string>
     <string name="version_line">גרסה %1$s</string>

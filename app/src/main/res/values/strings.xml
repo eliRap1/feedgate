@@ -65,6 +65,21 @@
     <string name="topic_gym">Gym</string>
     <string name="topic_security">Security</string>
 
+    <!-- The gate log (on-device counter). Deliberately NOT score language:
+         no streaks, no goals, no "saved" time, nothing to farm. -->
+    <string name="section_stats">The gate log</string>
+    <string name="stat_today_label">times the gate held today</string>
+    <string name="stat_empty">Nothing blocked yet — the log fills itself as you use your phone.</string>
+    <string name="stat_not_a_score">Not a score. It counts how often the gate had to hold, not how you did. A burst of blocks in one sitting counts once.</string>
+    <string name="stat_total">%1$d in total · since %2$s</string>
+    <string name="stat_reels">Reels</string>
+    <string name="stat_feed">Feed</string>
+    <string name="stat_explore">Explore</string>
+    <string name="stat_tiktok">TikTok</string>
+    <string name="sw_stats">Keep the log</string>
+    <string name="btn_stats_reset">Clear the log</string>
+    <string name="stats_cleared">Log cleared</string>
+
     <!-- App / updates -->
     <string name="section_app">App</string>
     <string name="version_line">version %1$s</string>

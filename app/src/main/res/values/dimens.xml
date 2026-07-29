@@ -12,4 +12,8 @@
     <dimen name="card_radius">20dp</dimen>
     <dimen name="card_padding">16dp</dimen>
     <dimen name="touch_min">48dp</dimen>
+
+    <!-- gate-log bars -->
+    <dimen name="bar_max">52dp</dimen>
+    <dimen name="bar_floor">2dp</dimen>
 </resources>

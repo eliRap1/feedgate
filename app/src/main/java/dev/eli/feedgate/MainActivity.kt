@@ -17,6 +17,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var prefs: Prefs
+    private lateinit var stats: Stats
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private var countdown: Runnable? = null
     private var countdownOwner = 0
@@ -26,6 +27,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         prefs = Prefs(this)
+        stats = Stats(this)
+
+        bindSwitchRaw(R.id.swStats, stats.enabled) { stats.enabled = it }
+        findViewById<Button>(R.id.btnStatsReset).setOnClickListener {
+            stats.reset()
+            refreshStats()
+            Toast.makeText(this, R.string.stats_cleared, Toast.LENGTH_SHORT).show()
+        }
 
         setupPassButton(R.id.btnPass10, 10)
         setupPassButton(R.id.btnPass30, 30)
@@ -143,6 +152,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnEnableService).visibility =
             if (enabled) View.GONE else View.VISIBLE
         refreshPassStatus()
+        refreshStats()
         findViewById<TextView>(R.id.verdictLine).text = prefs.lastVerdict
         // Quiet update check, at most once per 6h, only when opening the app.
         // Throttle recorded on SUCCESS so a failed check doesn't burn 6h.
@@ -291,5 +301,72 @@ class MainActivity : AppCompatActivity() {
         val sw = findViewById<MaterialSwitch>(id)
         sw.isChecked = get()
         sw.setOnCheckedChangeListener { _, checked -> set(checked) }
+    }
+
+    private fun bindSwitchRaw(id: Int, checked: Boolean, set: (Boolean) -> Unit) {
+        val sw = findViewById<MaterialSwitch>(id)
+        sw.isChecked = checked
+        sw.setOnCheckedChangeListener { _, c -> set(c) }
+    }
+
+    // ---------- the gate log ----------
+
+    private val barIds = intArrayOf(
+        R.id.barD0, R.id.barD1, R.id.barD2, R.id.barD3, R.id.barD4, R.id.barD5, R.id.barD6
+    )
+    private val labelIds = intArrayOf(
+        R.id.barL0, R.id.barL1, R.id.barL2, R.id.barL3, R.id.barL4, R.id.barL5, R.id.barL6
+    )
+
+    /**
+     * Static views only — values are written into them, nothing is inflated
+     * here, so repeated resumes can't stack duplicate bars or rows.
+     */
+    private fun refreshStats() {
+        val body = findViewById<View>(R.id.statBody)
+        val empty = findViewById<View>(R.id.statEmpty)
+        val since = stats.since()
+        if (since == 0L || stats.total() == 0) {
+            body.visibility = View.GONE
+            empty.visibility = View.VISIBLE
+            return
+        }
+        body.visibility = View.VISIBLE
+        empty.visibility = View.GONE
+
+        findViewById<TextView>(R.id.statToday).text = stats.today().toString()
+
+        val week = stats.week()
+        val labels = stats.weekLabels()
+        val peak = maxOf(week.max(), 1)
+        val full = resources.getDimensionPixelSize(R.dimen.bar_max)
+        val floor = resources.getDimensionPixelSize(R.dimen.bar_floor)
+        week.forEachIndexed { i, count ->
+            val bar = findViewById<View>(barIds[i])
+            bar.layoutParams = bar.layoutParams.apply {
+                height = if (count == 0) floor else maxOf(floor, full * count / peak)
+            }
+            // Brightness carries the hierarchy — today is the brightest bar.
+            bar.setBackgroundResource(
+                if (i == week.lastIndex) R.color.bone_dim else R.color.bone_faint
+            )
+            findViewById<TextView>(labelIds[i]).text = labels[i]
+        }
+
+        row(R.id.rowReels, R.id.valReels, Stats.SURFACE_REELS)
+        row(R.id.rowFeed, R.id.valFeed, Stats.SURFACE_FEED)
+        row(R.id.rowExplore, R.id.valExplore, Stats.SURFACE_EXPLORE)
+        row(R.id.rowTiktok, R.id.valTiktok, Stats.SURFACE_TIKTOK)
+
+        val sinceText = java.text.SimpleDateFormat("d MMM", java.util.Locale.getDefault())
+            .format(java.util.Date(since))
+        findViewById<TextView>(R.id.statTotal).text =
+            getString(R.string.stat_total, stats.total(), sinceText)
+    }
+
+    private fun row(rowId: Int, valueId: Int, surface: String) {
+        val n = stats.countOf(surface)
+        findViewById<View>(rowId).visibility = if (n == 0) View.GONE else View.VISIBLE
+        if (n > 0) findViewById<TextView>(valueId).text = n.toString()
     }
 }

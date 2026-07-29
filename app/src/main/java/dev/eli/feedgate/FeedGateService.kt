@@ -21,6 +21,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 class FeedGateService : AccessibilityService() {
 
     private val prefs by lazy { Prefs(this) }
+    private val stats by lazy { Stats(this) }
     private val handler = Handler(Looper.getMainLooper())
     private var overlay: View? = null
     private var lastBlockAt = 0L
@@ -186,19 +187,19 @@ class FeedGateService : AccessibilityService() {
                             dmGraceActive = false
                             // Don't instantly re-arm during the exit transition.
                             graceCooldownUntil = now + 3_000
-                            block("Instagram Reels (swiped past shared reel)")
+                            block("Instagram Reels (swiped past shared reel)", Stats.SURFACE_REELS)
                         }
                     }
                     return
                 }
             }
-            block("Instagram Reels")
+            block("Instagram Reels", Stats.SURFACE_REELS)
             return
         }
         // Grace lives only while the reel viewer is actually on screen.
         dmGraceActive = false
         if (prefs.blockIgExplore && Detectors.igExploreOpen(snap)) {
-            block("Instagram Explore")
+            block("Instagram Explore", Stats.SURFACE_EXPLORE)
             return
         }
         // Feed scroll: story tray stays reachable, doomscrolling does not.
@@ -212,6 +213,10 @@ class FeedGateService : AccessibilityService() {
             val now = System.currentTimeMillis()
             if (now - lastBlockAt < 1200) return // same debounce as block()
             lastBlockAt = now
+            // The only honest "feed" signal: a real scroll the user performed.
+            // (The blackout panel is a passive STATE — counting its attach
+            // would count Instagram launches, not pushes against the gate.)
+            stats.record(Stats.SURFACE_FEED)
             Log.i(Detectors.TAG, "BLOCK: Instagram feed scroll -> ${prefs.igFeedDest}")
             // Overlay FIRST: a visible window of ours exempts the redirect
             // from Android's background-activity-launch restrictions.
@@ -393,15 +398,21 @@ class FeedGateService : AccessibilityService() {
                 return
             }
         }
-        block("TikTok feed")
+        block("TikTok feed", Stats.SURFACE_TIKTOK)
     }
 
     // ---------- blocking machinery ----------
 
-    private fun block(what: String, showBack: Boolean = true) {
+    /**
+     * [surface] feeds the on-device counter. Recording lives HERE, past the
+     * debounce — call sites can't tell whether a block actually fired, so
+     * recording there would count ~12 swallowed events per second.
+     */
+    private fun block(what: String, surface: String, showBack: Boolean = true) {
         val now = System.currentTimeMillis()
         if (now - lastBlockAt < 1200) return // debounce
         lastBlockAt = now
+        stats.record(surface)
         Log.i(Detectors.TAG, "BLOCK: $what")
         flashOverlay(showBack)
     }
