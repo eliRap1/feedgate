@@ -65,18 +65,38 @@ class BriefActivity : AppCompatActivity() {
                     return@runOnUiThread
                 }
                 status.visibility = View.GONE
+                findViewById<TextView>(R.id.briefMeta).apply {
+                    text = getString(R.string.brief_meta, items.size)
+                    visibility = View.VISIBLE
+                }
                 val inflater = LayoutInflater.from(this)
-                items.forEach { item ->
-                    val row = inflater.inflate(R.layout.item_brief, list, false)
-                    row.findViewById<TextView>(R.id.itemSource).text = item.source
-                    row.findViewById<TextView>(R.id.itemTitle).text = item.title
-                    row.setOnClickListener {
-                        runCatching {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.link)))
+                var index = 0
+                // Grouped by topic, numbered across the whole brief.
+                BriefRepo.TOPICS.filter { t -> items.any { it.topic == t.key } }.forEach { topic ->
+                    val label = inflater.inflate(R.layout.brief_section_label, list, false) as TextView
+                    label.setText(topic.labelRes)
+                    list.addView(label)
+                    val topicItems = items.filter { it.topic == topic.key }
+                    topicItems.forEachIndexed { i, item ->
+                        index++
+                        val row = inflater.inflate(R.layout.item_brief, list, false)
+                        row.findViewById<TextView>(R.id.itemIndex).text =
+                            String.format(Locale.US, "%02d", index)
+                        row.findViewById<TextView>(R.id.itemTitle).text = item.title
+                        row.findViewById<TextView>(R.id.itemSource).text = item.source
+                        row.setOnClickListener {
+                            runCatching {
+                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.link)))
+                            }
+                        }
+                        list.addView(row)
+                        if (i < topicItems.size - 1) {
+                            list.addView(inflater.inflate(R.layout.brief_divider, list, false))
                         }
                     }
-                    list.addView(row)
                 }
+                // Once-only staggered entrance (system animation scale honored).
+                list.scheduleLayoutAnimation()
                 endCard.visibility = View.VISIBLE
             }
         }.start()

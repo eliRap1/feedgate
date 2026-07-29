@@ -2,24 +2,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_3"
     android:background="?attr/selectableItemBackground"
+    android:baselineAligned="false"
     android:minHeight="@dimen/touch_min"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/space_2"
-    android:paddingBottom="@dimen/space_2">
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/space_3"
+    android:paddingBottom="@dimen/space_3">
 
+    <!-- Editorial index: fixed column, quiet mono -->
     <TextView
-        android:id="@+id/itemSource"
-        android:layout_width="wrap_content"
+        android:id="@+id/itemIndex"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+        android:fontFamily="monospace"
+        android:textColor="@color/bone_faint"
+        android:textSize="12sp" />
 
-    <TextView
-        android:id="@+id/itemTitle"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_1"
-        android:textAppearance="@style/TextAppearance.FeedGate.Body"
-        android:textDirection="anyRtl" />
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/itemTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.FeedGate.Body"
+            android:textDirection="anyRtl" />
+
+        <TextView
+            android:id="@+id/itemSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:fontFamily="monospace"
+            android:textColor="@color/bone_faint"
+            android:textSize="11sp"
+            android:letterSpacing="0.08" />
+    </LinearLayout>
 </LinearLayout>

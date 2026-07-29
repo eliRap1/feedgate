@@ -43,6 +43,7 @@
     <string name="brief_empty">Pick at least one topic in the FeedGate app.</string>
     <string name="brief_loading">Fetching today\'s brief…</string>
     <string name="brief_offline">Couldn\'t fetch the brief — check the connection.</string>
+    <string name="brief_meta">%1$d items · one sitting</string>
     <string name="brief_done_title">That\'s it for today.</string>
     <string name="brief_done_sub">The brief is finite on purpose. Go do something.</string>
     <string name="ig_dest_label">When the feed scrolls</string>

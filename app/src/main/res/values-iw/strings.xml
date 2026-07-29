@@ -43,6 +43,7 @@
     <string name="brief_empty">יש לבחור לפחות נושא אחד באפליקציית FeedGate.</string>
     <string name="brief_loading">טוען את התקציר של היום…</string>
     <string name="brief_offline">הטעינה נכשלה — יש חיבור לאינטרנט?</string>
+    <string name="brief_meta">%1$d פריטים · קריאה אחת</string>
     <string name="brief_done_title">זהו להיום.</string>
     <string name="brief_done_sub">התקציר סופי בכוונה. לכו תעשו משהו.</string>
     <string name="ig_dest_label">כשגוללים בפיד</string>

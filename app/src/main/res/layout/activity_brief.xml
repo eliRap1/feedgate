@@ -28,6 +28,15 @@
             android:textAppearance="@style/TextAppearance.FeedGate.Mono" />
 
         <TextView
+            android:id="@+id/briefMeta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+            android:textColor="@color/bone_faint"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/briefStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,7 +50,8 @@
             android:id="@+id/briefList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3"
+            android:layout_marginTop="@dimen/space_1"
+            android:layoutAnimation="@anim/brief_layout_in"
             android:orientation="vertical" />
 
         <!-- The full stop. The brief ends and says so. -->
@@ -63,9 +73,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_4"
+                android:fontFamily="sans-serif-condensed-medium"
                 android:text="@string/brief_done_title"
-                android:textAppearance="@style/TextAppearance.FeedGate.Body"
-                android:textSize="18sp" />
+                android:textColor="@color/bone"
+                android:textSize="22sp" />
 
             <TextView
                 android:layout_width="wrap_content"
