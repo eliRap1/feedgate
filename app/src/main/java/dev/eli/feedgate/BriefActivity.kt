@@ -75,15 +75,18 @@ class BriefActivity : AppCompatActivity() {
                 BriefRepo.TOPICS.filter { t -> items.any { it.topic == t.key } }.forEach { topic ->
                     val card = inflater.inflate(R.layout.brief_section_card, list, false)
                     card.findViewById<TextView>(R.id.sectionLabel).setText(topic.labelRes)
-                    val holder = card.findViewById<LinearLayout>(R.id.sectionItems)
                     val topicItems = items.filter { it.topic == topic.key }
+                    // One feed per topic — the source belongs to the card
+                    // header, not repeated on every row.
+                    card.findViewById<TextView>(R.id.sectionSource).text =
+                        topicItems.first().source
+                    val holder = card.findViewById<LinearLayout>(R.id.sectionItems)
                     topicItems.forEachIndexed { i, item ->
                         index++
                         val row = inflater.inflate(R.layout.item_brief, holder, false)
                         row.findViewById<TextView>(R.id.itemIndex).text =
                             String.format(Locale.US, "%02d", index)
                         row.findViewById<TextView>(R.id.itemTitle).text = item.title
-                        row.findViewById<TextView>(R.id.itemSource).text = item.source
                         item.image?.let {
                             ImageLoader.load(it, row.findViewById(R.id.itemThumb))
                         }

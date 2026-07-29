@@ -31,16 +31,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.FeedGate.Body"
             android:textDirection="anyRtl" />
-
-        <TextView
-            android:id="@+id/itemSource"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_1"
-            android:fontFamily="monospace"
-            android:textColor="@color/bone_faint"
-            android:textSize="11sp"
-            android:letterSpacing="0.08" />
     </LinearLayout>
 
     <com.google.android.material.imageview.ShapeableImageView

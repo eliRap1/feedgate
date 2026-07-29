@@ -28,7 +28,7 @@
         <item name="android:fontFamily">sans-serif-condensed-medium</item>
         <item name="android:textSize">34sp</item>
         <item name="android:textColor">@color/bone</item>
-        <item name="android:letterSpacing">0.06</item>
+        <item name="android:letterSpacing">0.02</item>
     </style>
 
     <!-- Small caps-feel section labels: mono, tracked out, quiet -->
