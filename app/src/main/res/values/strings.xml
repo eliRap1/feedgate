@@ -24,6 +24,7 @@
     <string name="sw_ig_explore">Block Explore</string>
     <string name="sw_dm_grace">Allow reels opened from DMs — one reel, swiping blocks</string>
     <string name="sw_ig_feed_scroll">Block feed scrolling — story tray stays usable</string>
+    <string name="sw_ig_auto_dms">Jump to DMs when the feed scrolls</string>
     <string name="btn_ig_dms">Open Instagram DMs</string>
     <string name="ig_not_installed">Instagram not installed?</string>
 

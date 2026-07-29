@@ -169,6 +169,13 @@
                     android:layout_height="wrap_content"
                     android:text="@string/sw_ig_feed_scroll" />
 
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swIgAutoDms"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sw_ig_auto_dms" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnIgDms"
                     style="@style/Widget.FeedGate.Button.Tonal"

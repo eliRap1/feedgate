@@ -33,6 +33,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_TT_AUTO_INBOX, true)
         set(v) = sp.edit().putBoolean(KEY_TT_AUTO_INBOX, v).apply()
 
+    /** When the Instagram feed is scrolled, jump to the DM inbox (TikTok-style). */
+    var igAutoDms: Boolean
+        get() = sp.getBoolean(KEY_IG_AUTO_DMS, true)
+        set(v) = sp.edit().putBoolean(KEY_IG_AUTO_DMS, v).apply()
+
     /**
      * Allow a reel opened from a DM thread to play (one reel; swiping to the
      * next one re-blocks). Fixes "she sent me a reel and I can't watch it".
@@ -57,6 +62,7 @@ class Prefs(context: Context) {
         const val KEY_IG_FEED_SCROLL = "block_ig_feed_scroll"
         const val KEY_TT_FEED = "block_tt_feed"
         const val KEY_TT_AUTO_INBOX = "tt_auto_inbox"
+        const val KEY_IG_AUTO_DMS = "ig_auto_dms"
         const val KEY_INSPECTOR = "inspector_mode"
         const val KEY_DM_GRACE = "dm_grace"
         const val KEY_PASS_UNTIL = "pass_until"

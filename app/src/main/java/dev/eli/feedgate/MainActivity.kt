@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         bindSwitch(R.id.swIgReels, { prefs.blockIgReels }, { prefs.blockIgReels = it })
         bindSwitch(R.id.swIgExplore, { prefs.blockIgExplore }, { prefs.blockIgExplore = it })
         bindSwitch(R.id.swIgFeedScroll, { prefs.blockIgFeedScroll }, { prefs.blockIgFeedScroll = it })
+        bindSwitch(R.id.swIgAutoDms, { prefs.igAutoDms }, { prefs.igAutoDms = it })
         bindSwitch(R.id.swTtFeed, { prefs.blockTikTokFeed }, { prefs.blockTikTokFeed = it })
         bindSwitch(R.id.swTtAutoInbox, { prefs.tikTokAutoInbox }, { prefs.tikTokAutoInbox = it })
         bindSwitch(R.id.swInspector, { prefs.inspectorMode }, { prefs.inspectorMode = it })

@@ -1,6 +1,7 @@
 package dev.eli.feedgate
 
 import android.util.Log
+import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 
 /**
@@ -131,11 +132,14 @@ object Detectors {
      * True when this scroll event comes from the home feed list (not DMs, not stories).
      * Used to allow the story tray while punishing feed doomscrolling.
      */
-    fun igIsFeedScroll(source: AccessibilityNodeInfo?, root: AccessibilityNodeInfo): Boolean {
-        if (source == null) return false
+    fun igIsFeedScroll(event: AccessibilityEvent, root: AccessibilityNodeInfo): Boolean {
+        val source = event.source ?: return false
         val id = source.viewIdResourceName ?: ""
         // Story tray is a horizontal list; feed scrolls are the vertical feed recycler.
         if (id.endsWith(":id/stories_tray_recyclerview") || id.endsWith(":id/tray_recyclerview")) return false
+        // Horizontal-only scrolls are the story tray / post carousels — never
+        // the feed. ID-independent, so it survives Instagram renames.
+        if (event.scrollDeltaX != 0 && event.scrollDeltaY == 0) return false
         if (!igHomeFeedOpen(root)) return false
         // Heuristic: vertical scrollable container on the home surface.
         return source.className?.contains("RecyclerView") == true ||

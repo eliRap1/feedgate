@@ -115,13 +115,37 @@ class FeedGateService : AccessibilityService() {
         }
         // Feed scroll: story tray stays reachable, doomscrolling does not.
         // No Back press here — the home surface hosts the story tray, so
-        // bouncing out would break stories. Just flash the wall.
+        // bouncing out would break stories. Flash the wall, and (TikTok-style)
+        // whisk over to the DM inbox if enabled.
         if (prefs.blockIgFeedScroll &&
             event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED &&
-            Detectors.igIsFeedScroll(event.source, root)
+            Detectors.igIsFeedScroll(event, root)
         ) {
-            block("Instagram feed scroll", showBack = false)
+            val now = System.currentTimeMillis()
+            if (now - lastBlockAt < 1200) return // same debounce as block()
+            lastBlockAt = now
+            Log.i(Detectors.TAG, "BLOCK: Instagram feed scroll")
+            if (prefs.igAutoDms && openIgDms()) {
+                Log.i(Detectors.TAG, "Instagram feed scroll -> redirecting to DMs")
+            }
+            flashOverlay(showBack = false)
         }
+    }
+
+    /** Deep-link into the Instagram DM inbox. Returns false if IG rejects it. */
+    private fun openIgDms(): Boolean = try {
+        startActivity(
+            android.content.Intent(
+                android.content.Intent.ACTION_VIEW,
+                android.net.Uri.parse("instagram://direct-inbox")
+            )
+                .setPackage(Detectors.PKG_INSTAGRAM)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+        true
+    } catch (t: Throwable) {
+        Log.w(Detectors.TAG, "DM deep link failed", t)
+        false
     }
 
     // ---------- TikTok ----------

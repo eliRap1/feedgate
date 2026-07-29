@@ -24,6 +24,7 @@
     <string name="sw_ig_explore">חסימת Explore</string>
     <string name="sw_dm_grace">לאפשר רילס שנפתח מהודעה — רילס אחד, החלקה חוסמת</string>
     <string name="sw_ig_feed_scroll">חסימת גלילת פיד — שורת הסטוריז נשארת זמינה</string>
+    <string name="sw_ig_auto_dms">מעבר להודעות כשגוללים בפיד</string>
     <string name="btn_ig_dms">פתיחת הודעות אינסטגרם</string>
     <string name="ig_not_installed">אינסטגרם לא מותקן?</string>
 
