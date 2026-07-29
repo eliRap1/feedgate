@@ -59,6 +59,7 @@
     <string name="topic_design">עיצוב</string>
     <string name="topic_health">בריאות</string>
     <string name="topic_gym">כושר</string>
+    <string name="topic_security">אבטחת מידע</string>
 
     <!-- App / updates -->
     <string name="section_app">אפליקציה</string>

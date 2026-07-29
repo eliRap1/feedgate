@@ -30,6 +30,9 @@ class FeedGateService : AccessibilityService() {
     private var lastDirectSeenAt = 0L
     /** True while the current Reels viewer session was entered from a DM. */
     private var dmGraceActive = false
+    /** When the current grace was granted — the pager fires a "settle" scroll
+     *  right as the reel opens, which must not count as the ending swipe. */
+    private var graceStartedAt = 0L
 
     private fun passActive() = System.currentTimeMillis() < prefs.passUntil
 
@@ -88,6 +91,7 @@ class FeedGateService : AccessibilityService() {
                     !Detectors.igReelsTabSelected(root)
                 if (!dmGraceActive && (now - lastDirectSeenAt < 8_000 || fromShare)) {
                     dmGraceActive = true
+                    graceStartedAt = now
                     // Consume the window: one DM visit buys exactly one grace,
                     // and the swipe-block below cannot re-arm it.
                     lastDirectSeenAt = 0L
@@ -95,12 +99,14 @@ class FeedGateService : AccessibilityService() {
                 }
                 if (dmGraceActive) {
                     // Only a swipe on the Reels pager ends the grace — comment
-                    // sheets and share trays emit scroll events too.
+                    // sheets and share trays emit scroll events too, and the
+                    // pager itself emits a settle-scroll while the reel OPENS,
+                    // which must not kill the grace instantly (2s shield).
                     val src = event.source
                     val pagerScroll = event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED &&
                         (src?.viewIdResourceName?.contains("clips") == true ||
                             src?.className?.contains("ViewPager") == true)
-                    if (pagerScroll) {
+                    if (pagerScroll && now - graceStartedAt > 2_000) {
                         dmGraceActive = false
                         block("Instagram Reels (swiped past shared reel)")
                     }
