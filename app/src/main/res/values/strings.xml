@@ -36,7 +36,16 @@
     <string name="sw_inspector">Inspector mode — dump view tree to logcat</string>
     <string name="debug_hint">If a block stops working after an app update: turn on Inspector mode, open the offending screen, run adb logcat -s FeedGate, then update the selectors in Detectors.kt.</string>
 
-    <string name="footer_privacy">on-device only · nothing leaves your phone</string>
+    <!-- App / updates -->
+    <string name="section_app">App</string>
+    <string name="version_line">version %1$s</string>
+    <string name="btn_check_update">Check for updates</string>
+    <string name="btn_update_to">Update to %1$s</string>
+    <string name="update_none">Up to date</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_failed">Update check failed — is the phone online?</string>
+
+    <string name="footer_privacy">on-device only · network used only for updates</string>
 
     <!-- Block overlay -->
     <string name="overlay_overline">feedgate</string>

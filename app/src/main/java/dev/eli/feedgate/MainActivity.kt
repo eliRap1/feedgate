@@ -65,6 +65,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        findViewById<TextView>(R.id.versionLine).text =
+            getString(R.string.version_line, currentVersion())
+        findViewById<Button>(R.id.btnUpdate).setOnClickListener {
+            val rel = pendingRelease
+            if (rel != null) startUpdateDownload(rel) else checkForUpdate(manual = true)
+        }
     }
 
     override fun onResume() {
@@ -78,6 +85,57 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnEnableService).visibility =
             if (enabled) View.GONE else View.VISIBLE
         refreshPassStatus()
+        // Quiet update check, at most once per 6h, only when opening the app.
+        if (System.currentTimeMillis() - prefs.lastUpdateCheck > 6 * 60 * 60_000L) {
+            prefs.lastUpdateCheck = System.currentTimeMillis()
+            checkForUpdate(manual = false)
+        }
+    }
+
+    // ---------- in-app updates ----------
+
+    private var pendingRelease: Updater.Release? = null
+
+    private fun currentVersion(): String =
+        packageManager.getPackageInfo(packageName, 0).versionName ?: "0"
+
+    private fun checkForUpdate(manual: Boolean) {
+        val btn = findViewById<Button>(R.id.btnUpdate)
+        Thread {
+            val rel = Updater.fetchLatest()
+            runOnUiThread {
+                when {
+                    rel != null && Updater.isNewer(rel.tag, currentVersion()) -> {
+                        pendingRelease = rel
+                        btn.text = getString(R.string.btn_update_to, rel.tag)
+                    }
+                    manual && rel != null ->
+                        Toast.makeText(this, R.string.update_none, Toast.LENGTH_SHORT).show()
+                    manual ->
+                        Toast.makeText(this, R.string.update_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun startUpdateDownload(rel: Updater.Release) {
+        val btn = findViewById<Button>(R.id.btnUpdate)
+        btn.isEnabled = false
+        btn.setText(R.string.update_downloading)
+        Thread {
+            val apk = Updater.download(this, rel.apkUrl)
+            runOnUiThread {
+                btn.isEnabled = true
+                if (apk != null) {
+                    btn.text = getString(R.string.btn_update_to, rel.tag)
+                    Updater.install(this, apk)
+                } else {
+                    btn.setText(R.string.btn_check_update)
+                    pendingRelease = null
+                    Toast.makeText(this, R.string.update_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
     }
 
     /**

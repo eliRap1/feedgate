@@ -42,4 +42,6 @@ Zulu JDK 21, AGP 8.13.1, SDK platform 36 at `%LOCALAPPDATA%\Android\Sdk`.
 - Bilingual: every user-facing string in `values/` AND `values-iw/`.
 - Accessibility service is restricted to IG/TikTok packages in
   `accessibility_service_config.xml` — keep it that way (privacy stance).
-- No outbound network calls anywhere. Keep it so.
+- Network access exists ONLY in `Updater.kt` (HTTPS to github.com releases,
+  user-visible, throttled). The blocker service itself never touches the
+  network — keep it so.

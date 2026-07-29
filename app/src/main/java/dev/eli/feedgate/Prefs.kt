@@ -56,6 +56,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_INSPECTOR, false)
         set(v) = sp.edit().putBoolean(KEY_INSPECTOR, v).apply()
 
+    /** Last automatic update-check time (epoch millis) — throttles the open-time check. */
+    var lastUpdateCheck: Long
+        get() = sp.getLong(KEY_LAST_UPDATE_CHECK, 0L)
+        set(v) = sp.edit().putLong(KEY_LAST_UPDATE_CHECK, v).apply()
+
     companion object {
         const val KEY_IG_REELS = "block_ig_reels"
         const val KEY_IG_EXPLORE = "block_ig_explore"
@@ -66,5 +71,6 @@ class Prefs(context: Context) {
         const val KEY_INSPECTOR = "inspector_mode"
         const val KEY_DM_GRACE = "dm_grace"
         const val KEY_PASS_UNTIL = "pass_until"
+        const val KEY_LAST_UPDATE_CHECK = "last_update_check"
     }
 }

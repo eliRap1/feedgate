@@ -36,7 +36,16 @@
     <string name="sw_inspector">מצב Inspector — שליחת עץ התצוגה ל־logcat</string>
     <string name="debug_hint">אם חסימה מפסיקה לעבוד אחרי עדכון אפליקציה: יש להפעיל מצב Inspector, לפתוח את המסך הבעייתי, להריץ adb logcat -s FeedGate ולעדכן את הסלקטורים ב־Detectors.kt.</string>
 
-    <string name="footer_privacy">הכול במכשיר · שום דבר לא עוזב את הטלפון</string>
+    <!-- App / updates -->
+    <string name="section_app">אפליקציה</string>
+    <string name="version_line">גרסה %1$s</string>
+    <string name="btn_check_update">בדיקת עדכונים</string>
+    <string name="btn_update_to">עדכון ל־%1$s</string>
+    <string name="update_none">מעודכן</string>
+    <string name="update_downloading">מוריד…</string>
+    <string name="update_failed">בדיקת העדכון נכשלה — יש חיבור לאינטרנט?</string>
+
+    <string name="footer_privacy">הכול במכשיר · רשת משמשת רק לעדכונים</string>
 
     <!-- Block overlay -->
     <string name="overlay_overline">feedgate</string>
