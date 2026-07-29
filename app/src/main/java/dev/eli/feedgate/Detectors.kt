@@ -94,15 +94,20 @@ object Detectors {
 
     // ---------- Instagram ----------
 
+    private val REELS_TAB = setOf("Reels", "רילס")
+
+    /** The full-screen clips viewer surface (by view IDs). */
+    fun igClipsViewerOpen(root: AccessibilityNodeInfo): Boolean =
+        hasIdSuffix(root, ":id/clips_viewer_view_pager", ":id/clips_swipe_refresh_container",
+            ":id/clips_video_container")
+
+    /** Reels tab selected in the bottom bar (Hebrew included). */
+    fun igReelsTabSelected(root: AccessibilityNodeInfo): Boolean =
+        selectedTab(root, REELS_TAB)
+
     /** True when the Reels (clips) viewer is on screen. */
-    fun igReelsOpen(root: AccessibilityNodeInfo): Boolean {
-        // Full-screen Reels surface.
-        if (hasIdSuffix(root, ":id/clips_viewer_view_pager", ":id/clips_swipe_refresh_container",
-                ":id/clips_video_container")) return true
-        // Reels tab selected in the bottom bar. (Hebrew locale included —
-        // content-descriptions follow the app language.)
-        return selectedTab(root, setOf("Reels", "רילס"))
-    }
+    fun igReelsOpen(root: AccessibilityNodeInfo): Boolean =
+        igClipsViewerOpen(root) || igReelsTabSelected(root)
 
     /** True when Explore / search-grid is on screen. */
     fun igExploreOpen(root: AccessibilityNodeInfo): Boolean {

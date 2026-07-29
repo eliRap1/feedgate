@@ -26,6 +26,19 @@
             android:name=".BriefActivity"
             android:exported="false" />
 
+        <!-- Standalone home-screen entry: open the brief like its own app -->
+        <activity-alias
+            android:name=".DaybriefLauncher"
+            android:exported="true"
+            android:icon="@drawable/ic_brief"
+            android:label="@string/brief_screen_title"
+            android:targetActivity=".BriefActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <service
             android:name=".FeedGateService"
             android:exported="false"

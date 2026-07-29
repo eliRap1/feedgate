@@ -79,7 +79,14 @@ class FeedGateService : AccessibilityService() {
             // first swipe to the NEXT reel consumes the grace and blocks.
             if (prefs.dmGrace) {
                 val now = System.currentTimeMillis()
-                if (!dmGraceActive && now - lastDirectSeenAt < 8_000) {
+                // Two ways to earn the one-reel grace:
+                //  1. We saw a DM surface moments ago (ID-based, can drift).
+                //  2. ID-independent fallback: the clips viewer is open but
+                //     the Reels tab is NOT selected — a reel opened from a
+                //     DM/share/profile, not from browsing the Reels tab.
+                val fromShare = Detectors.igClipsViewerOpen(root) &&
+                    !Detectors.igReelsTabSelected(root)
+                if (!dmGraceActive && (now - lastDirectSeenAt < 8_000 || fromShare)) {
                     dmGraceActive = true
                     // Consume the window: one DM visit buys exactly one grace,
                     // and the swipe-block below cannot re-arm it.

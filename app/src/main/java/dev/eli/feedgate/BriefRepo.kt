@@ -41,9 +41,16 @@ object BriefRepo {
         Topic("ai", R.string.topic_ai, "https://www.technologyreview.com/feed/"),
         Topic("design", R.string.topic_design, "https://www.smashingmagazine.com/feed/"),
         Topic("health", R.string.topic_health, "https://www.sciencedaily.com/rss/health_medicine.xml"),
+        Topic("gym", R.string.topic_gym, "https://www.strongerbyscience.com/feed/"),
     )
 
-    data class Item(val topic: String, val title: String, val link: String, val source: String)
+    data class Item(
+        val topic: String,
+        val title: String,
+        val link: String,
+        val source: String,
+        val image: String? = null,
+    )
 
     fun today(): String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
 
@@ -104,8 +111,8 @@ object BriefRepo {
         val charset = charsetOf(conn.contentType)
         conn.disconnect()
         val host = URL(topic.url).host.removePrefix("www.").removePrefix("feeds.")
-        parseRss(String(bytes, charset)).take(PER_TOPIC).map { (title, link) ->
-            Item(topic.key, title, link, host)
+        parseRss(String(bytes, charset)).take(PER_TOPIC).map { raw ->
+            Item(topic.key, raw.title, raw.link, host, raw.image)
         }
     } catch (t: Throwable) {
         Log.w(Detectors.TAG, "brief fetch failed for ${topic.key}: $t")
@@ -120,36 +127,60 @@ object BriefRepo {
         Charsets.UTF_8
     }
 
+    private data class RawItem(val title: String, val link: String, val image: String?)
+
+    private val IMG_IN_HTML = Regex("""<img[^>]+src=['"]([^'"]+)""")
+
     /**
-     * Minimal RSS parser: item -> (title, link). CDATA handled by nextText().
-     * A malformed token mid-feed keeps whatever parsed cleanly before it.
+     * Minimal RSS parser: item -> (title, link, image?). CDATA handled by
+     * nextText(). Images come from media:thumbnail / media:content /
+     * image enclosures, falling back to an <img> inside the description
+     * (ynet's style). A malformed token mid-feed keeps whatever parsed
+     * cleanly before it.
      */
-    private fun parseRss(xml: String): List<Pair<String, String>> {
-        val out = mutableListOf<Pair<String, String>>()
+    private fun parseRss(xml: String): List<RawItem> {
+        val out = mutableListOf<RawItem>()
         try {
             val parser = Xml.newPullParser()
             parser.setInput(xml.reader())
             var inItem = false
             var title: String? = null
             var link: String? = null
+            var image: String? = null
             var event = parser.eventType
             while (event != XmlPullParser.END_DOCUMENT) {
                 when (event) {
-                    XmlPullParser.START_TAG -> when {
-                        parser.name.equals("item", true) -> {
-                            inItem = true; title = null; link = null
+                    XmlPullParser.START_TAG -> {
+                        val name = parser.name ?: ""
+                        when {
+                            name.equals("item", true) -> {
+                                inItem = true; title = null; link = null; image = null
+                            }
+                            inItem && name.equals("title", true) ->
+                                title = parser.nextText().trim()
+                            inItem && name.equals("link", true) ->
+                                link = parser.nextText().trim()
+                            inItem && (name.endsWith("thumbnail", true) ||
+                                name.endsWith("enclosure", true) ||
+                                name.equals("media:content", true)) -> {
+                                val url = parser.getAttributeValue(null, "url")
+                                val type = parser.getAttributeValue(null, "type") ?: "image"
+                                if (image == null && url != null && type.startsWith("image")) {
+                                    image = url
+                                }
+                            }
+                            inItem && name.equals("description", true) && image == null ->
+                                image = IMG_IN_HTML.find(parser.nextText())?.groupValues?.get(1)
                         }
-                        inItem && parser.name.equals("title", true) ->
-                            title = parser.nextText().trim()
-                        inItem && parser.name.equals("link", true) ->
-                            link = parser.nextText().trim()
                     }
                     XmlPullParser.END_TAG ->
                         if (parser.name.equals("item", true)) {
                             inItem = false
                             val t = title
                             val l = link
-                            if (!t.isNullOrBlank() && !l.isNullOrBlank()) out.add(t to l)
+                            if (!t.isNullOrBlank() && !l.isNullOrBlank()) {
+                                out.add(RawItem(t, l, image?.takeIf { it.startsWith("http") }))
+                            }
                         }
                 }
                 event = parser.next()
@@ -171,7 +202,10 @@ object BriefRepo {
                 val arr = obj.getJSONArray(topic)
                 map[topic] = (0 until arr.length()).map { i ->
                     val o = arr.getJSONObject(i)
-                    Item(topic, o.getString("title"), o.getString("link"), o.getString("source"))
+                    Item(
+                        topic, o.getString("title"), o.getString("link"),
+                        o.getString("source"), o.optString("image").takeIf { it.isNotEmpty() }
+                    )
                 }
             }
         } catch (t: Throwable) {
@@ -185,7 +219,10 @@ object BriefRepo {
         store.forEach { (topic, items) ->
             val arr = JSONArray()
             items.forEach {
-                arr.put(JSONObject().put("title", it.title).put("link", it.link).put("source", it.source))
+                arr.put(
+                    JSONObject().put("title", it.title).put("link", it.link)
+                        .put("source", it.source).put("image", it.image ?: "")
+                )
             }
             obj.put(topic, arr)
         }

@@ -71,29 +71,33 @@ class BriefActivity : AppCompatActivity() {
                 }
                 val inflater = LayoutInflater.from(this)
                 var index = 0
-                // Grouped by topic, numbered across the whole brief.
+                // One standalone card per topic, numbered across the whole brief.
                 BriefRepo.TOPICS.filter { t -> items.any { it.topic == t.key } }.forEach { topic ->
-                    val label = inflater.inflate(R.layout.brief_section_label, list, false) as TextView
-                    label.setText(topic.labelRes)
-                    list.addView(label)
+                    val card = inflater.inflate(R.layout.brief_section_card, list, false)
+                    card.findViewById<TextView>(R.id.sectionLabel).setText(topic.labelRes)
+                    val holder = card.findViewById<LinearLayout>(R.id.sectionItems)
                     val topicItems = items.filter { it.topic == topic.key }
                     topicItems.forEachIndexed { i, item ->
                         index++
-                        val row = inflater.inflate(R.layout.item_brief, list, false)
+                        val row = inflater.inflate(R.layout.item_brief, holder, false)
                         row.findViewById<TextView>(R.id.itemIndex).text =
                             String.format(Locale.US, "%02d", index)
                         row.findViewById<TextView>(R.id.itemTitle).text = item.title
                         row.findViewById<TextView>(R.id.itemSource).text = item.source
+                        item.image?.let {
+                            ImageLoader.load(it, row.findViewById(R.id.itemThumb))
+                        }
                         row.setOnClickListener {
                             runCatching {
                                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.link)))
                             }
                         }
-                        list.addView(row)
+                        holder.addView(row)
                         if (i < topicItems.size - 1) {
-                            list.addView(inflater.inflate(R.layout.brief_divider, list, false))
+                            holder.addView(inflater.inflate(R.layout.brief_divider, holder, false))
                         }
                     }
+                    list.addView(card)
                 }
                 // Once-only staggered entrance (system animation scale honored).
                 list.scheduleLayoutAnimation()

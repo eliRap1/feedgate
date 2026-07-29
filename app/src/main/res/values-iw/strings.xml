@@ -58,6 +58,7 @@
     <string name="topic_ai">בינה מלאכותית</string>
     <string name="topic_design">עיצוב</string>
     <string name="topic_health">בריאות</string>
+    <string name="topic_gym">כושר</string>
 
     <!-- App / updates -->
     <string name="section_app">אפליקציה</string>

@@ -113,6 +113,10 @@
         <item name="android:paddingStart">2dp</item>
     </style>
 
+    <style name="ShapeAppearance.FeedGate.Thumb" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
     <!-- Topic chips — same quiet checked language as the switches -->
     <style name="Widget.FeedGate.Chip" parent="Widget.Material3.Chip.Filter">
         <item name="chipBackgroundColor">@color/chip_bg</item>
