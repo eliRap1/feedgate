@@ -31,7 +31,7 @@
 
     <string name="section_tiktok">טיקטוק</string>
     <string name="sw_tt_feed">חסימת פיד For You / חברים</string>
-    <string name="sw_tt_auto_inbox">מעבר אוטומטי ל־Inbox כשהפיד נפתח</string>
+    <string name="sw_tt_auto_inbox">מעבר אוטומטי לדואר הנכנס כשהפיד נפתח</string>
 
     <string name="section_debug">דיבאג</string>
     <string name="sw_inspector">מצב Inspector — הקלטת עצי תצוגה</string>

@@ -47,8 +47,10 @@ class BriefActivity : AppCompatActivity() {
         list.removeAllViews()
         endCard.visibility = View.GONE
         status.visibility = View.VISIBLE
+        findViewById<TextView>(R.id.briefMeta).visibility = View.GONE
 
         if (topics.isEmpty()) {
+            renderedKey = null // let a topic pick re-render
             status.setText(R.string.brief_empty)
             return
         }
@@ -61,6 +63,8 @@ class BriefActivity : AppCompatActivity() {
                 // Drop stale results if the activity died or a newer render started.
                 if (isFinishing || isDestroyed || renderedKey != myKey) return@runOnUiThread
                 if (items.isEmpty()) {
+                    // Don't latch a failure — the next open must retry.
+                    renderedKey = null
                     status.setText(R.string.brief_offline)
                     return@runOnUiThread
                 }

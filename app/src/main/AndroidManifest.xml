@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Network is used ONLY by the in-app updater (HTTPS to github.com). -->
+    <!--
+      Network is used by exactly three call sites, all user-initiated or
+      once-a-day: Updater.kt (github.com releases), BriefRepo.kt (curated
+      RSS feeds), ImageLoader.kt (thumbnails from those feeds).
+      The blocker service itself never touches the network.
+    -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <!-- allowBackup=false: filesDir holds inspector dumps of screen content.
+         Nothing about this app should ride a cloud backup. -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
@@ -24,7 +31,8 @@
 
         <activity
             android:name=".BriefActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
 
         <!-- Standalone home-screen entry: open the brief like its own app -->
         <activity-alias

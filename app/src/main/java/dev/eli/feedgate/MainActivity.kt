@@ -145,8 +145,8 @@ class MainActivity : AppCompatActivity() {
         refreshPassStatus()
         findViewById<TextView>(R.id.verdictLine).text = prefs.lastVerdict
         // Quiet update check, at most once per 6h, only when opening the app.
+        // Throttle recorded on SUCCESS so a failed check doesn't burn 6h.
         if (System.currentTimeMillis() - prefs.lastUpdateCheck > 6 * 60 * 60_000L) {
-            prefs.lastUpdateCheck = System.currentTimeMillis()
             checkForUpdate(manual = false)
         }
     }
@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         Thread {
             val rel = Updater.fetchLatest()
             runOnUiThread {
+                if (rel != null) prefs.lastUpdateCheck = System.currentTimeMillis()
                 when {
                     rel != null && Updater.isNewer(rel.tag, currentVersion()) -> {
                         pendingRelease = rel
@@ -263,6 +264,13 @@ class MainActivity : AppCompatActivity() {
             // Nothing to end — don't announce a dead tap target.
             tv.isClickable = false
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Leaving the screen aborts an in-flight unlock — a pass must never
+        // start while the user isn't looking at the countdown.
+        if (countdown != null) cancelCountdown()
     }
 
     override fun onDestroy() {

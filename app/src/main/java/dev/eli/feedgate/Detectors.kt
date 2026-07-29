@@ -26,6 +26,124 @@ object Detectors {
     // TikTok ships under two package names depending on region.
     val PKG_TIKTOK = setOf("com.zhiliaoapp.musically", "com.ss.android.ugc.trill")
 
+    // ---------- single-pass snapshot ----------
+
+    /**
+     * The detectors run on every accessibility event (80ms cadence) and each
+     * lookup is a full tree walk over Instagram's process. One walk per event
+     * collects every node the predicates need; everything below reads the
+     * snapshot instead of re-walking.
+     */
+    class Snap(root: AccessibilityNodeInfo) {
+        val byId = HashMap<String, AccessibilityNodeInfo>()
+        var tray: AccessibilityNodeInfo? = null
+
+        init {
+            val stack = ArrayDeque<AccessibilityNodeInfo>()
+            stack.add(root)
+            var guard = 0
+            while (stack.isNotEmpty() && guard++ < 4000) {
+                val n = stack.removeLast()
+                val id = n.viewIdResourceName
+                if (id != null) {
+                    val key = id.substringAfterLast('/')
+                    if (key in WANTED && key !in byId) byId[key] = n
+                }
+                if (tray == null) {
+                    val d = n.contentDescription?.toString()
+                    if (d != null && (d.equals("reels tray container", true) ||
+                            d.equals("מכל מגש הסטוריז", true))
+                    ) tray = n
+                }
+                for (i in 0 until n.childCount) n.getChild(i)?.let { stack.add(it) }
+            }
+        }
+
+        fun sel(key: String) = byId[key]?.isSelected == true
+        fun vis(key: String) = byId[key]?.isVisibleToUser == true
+        fun has(key: String) = byId.containsKey(key)
+
+        private companion object {
+            val WANTED = setOf(
+                "feed_tab", "clips_tab", "direct_tab", "search_tab", "profile_tab",
+                "clips_viewer_view_pager", "clips_video_container",
+                "reel_viewer_root", "reel_viewer_media_container",
+                "inbox_refreshable_thread_list_recyclerview",
+                "direct_thread_view", "direct_thread_toolbar",
+                "explore_grid_recycler_view", "action_bar_title_view",
+                "stories_tray_recyclerview", "tray_recyclerview",
+            )
+        }
+    }
+
+    fun snap(root: AccessibilityNodeInfo) = Snap(root)
+
+    // Snapshot-based predicates — these are what the service should call.
+    fun igClipsViewerOpen(s: Snap) =
+        s.vis("clips_viewer_view_pager") || s.vis("clips_video_container")
+
+    fun igReelsTabSelected(s: Snap) = s.sel("clips_tab")
+
+    fun igTabBarPresent(s: Snap) = s.has("feed_tab")
+
+    fun igHomeFeedOpen(s: Snap) =
+        s.sel("feed_tab") && s.vis("feed_tab") && !igClipsViewerOpen(s)
+
+    fun igStoryViewerOpen(s: Snap) =
+        s.vis("reel_viewer_root") || s.vis("reel_viewer_media_container")
+
+    fun igDirectOpen(s: Snap) =
+        s.sel("direct_tab") || s.vis("inbox_refreshable_thread_list_recyclerview") ||
+            s.vis("direct_thread_view") || s.vis("direct_thread_toolbar")
+
+    fun igExploreOpen(s: Snap) =
+        s.sel("search_tab") || s.vis("explore_grid_recycler_view")
+
+    fun igFeedCoverTop(s: Snap, screenHeight: Int): Int {
+        val tray = (s.byId["stories_tray_recyclerview"] ?: s.byId["tray_recyclerview"] ?: s.tray)
+            ?.takeIf { it.isVisibleToUser }
+        if (tray != null) {
+            val r = Rect()
+            tray.getBoundsInScreen(r)
+            if (r.bottom > 0 && r.bottom < screenHeight / 2) return r.bottom
+        }
+        s.byId["action_bar_title_view"]?.takeIf { it.isVisibleToUser }?.let {
+            val r = Rect()
+            it.getBoundsInScreen(r)
+            if (r.bottom > 0) return r.bottom
+        }
+        return (screenHeight * 0.12f).toInt()
+    }
+
+    fun igBottomNavTop(s: Snap, screenHeight: Int): Int {
+        s.byId["feed_tab"]?.let {
+            val r = Rect()
+            it.getBoundsInScreen(r)
+            if (r.top > 0) return r.top
+        }
+        return (screenHeight * 0.92f).toInt()
+    }
+
+    /** Verdict line for the Debug card / dumps — one snapshot, no re-walks. */
+    fun debugState(s: Snap): String = buildString {
+        append("home=").append(igHomeFeedOpen(s))
+        append(" clipsVis=").append(igClipsViewerOpen(s))
+        append(" clipsTab=").append(igReelsTabSelected(s))
+        append(" direct=").append(igDirectOpen(s))
+        append(" explore=").append(igExploreOpen(s))
+        append(" story=").append(igStoryViewerOpen(s))
+        listOf(
+            "feed_tab", "clips_tab", "direct_tab", "search_tab",
+            "clips_viewer_view_pager", "clips_video_container",
+            "inbox_refreshable_thread_list_recyclerview", "action_bar_title_view",
+        ).forEach { k ->
+            append(' ').append(k).append('[')
+            val n = s.byId[k]
+            append(if (n == null) "absent" else "sel=${n.isSelected},vis=${n.isVisibleToUser}")
+            append(']')
+        }
+    }
+
     // ---------- generic helpers ----------
 
     private fun findByIdSuffix(root: AccessibilityNodeInfo, suffix: String): AccessibilityNodeInfo? {
@@ -103,35 +221,6 @@ object Detectors {
         for (i in 0 until node.childCount) buildTree(node.getChild(i), sb, depth + 1)
     }
 
-    /** One-line detector verdicts + raw signals — prepended to every dump
-     *  so a shared dump immediately shows WHICH predicate misfired. */
-    fun debugState(root: AccessibilityNodeInfo): String = buildString {
-        fun safe(name: String, f: () -> Boolean) {
-            append(name).append('=')
-            append(runCatching(f).getOrElse { "err" })
-            append(' ')
-        }
-        safe("home") { igHomeFeedOpen(root) }
-        safe("clipsVis") { igClipsViewerOpen(root) }
-        safe("clipsTab") { igReelsTabSelected(root) }
-        safe("direct") { igDirectOpen(root) }
-        safe("explore") { igExploreOpen(root) }
-        safe("story") { igStoryViewerOpen(root) }
-        fun node(s: String) {
-            append(s.substringAfterLast('/')).append('[')
-            val n = findByIdSuffix(root, s)
-            append(
-                if (n == null) "absent"
-                else "sel=${n.isSelected},vis=${n.isVisibleToUser}"
-            )
-            append("] ")
-        }
-        node(":id/feed_tab"); node(":id/clips_tab"); node(":id/direct_tab")
-        node(":id/search_tab"); node(":id/clips_viewer_view_pager")
-        node(":id/clips_video_container")
-        node(":id/inbox_refreshable_thread_list_recyclerview")
-        node(":id/action_bar_title_view")
-    }
 
     /** Dump the node tree to logcat (inspector mode). */
     fun dumpTree(node: AccessibilityNodeInfo?, depth: Int = 0) {
@@ -148,60 +237,11 @@ object Detectors {
 
     // ---------- Instagram ----------
 
-    /** The clips viewer actually ON SCREEN (not the offscreen pager page). */
-    fun igClipsViewerOpen(root: AccessibilityNodeInfo): Boolean =
-        visibleById(root, ":id/clips_viewer_view_pager") != null ||
-            visibleById(root, ":id/clips_video_container") != null
-
-    /** Bottom-bar Reels tab selected — browsing Reels deliberately. */
-    fun igReelsTabSelected(root: AccessibilityNodeInfo): Boolean =
-        tabSel(root, ":id/clips_tab")
-
-    /** True when the Reels (clips) viewer is on screen. */
-    fun igReelsOpen(root: AccessibilityNodeInfo): Boolean = igClipsViewerOpen(root)
-
-    /** True when Explore / search-grid is on screen. */
-    fun igExploreOpen(root: AccessibilityNodeInfo): Boolean =
-        tabSel(root, ":id/search_tab") ||
-            visibleById(root, ":id/explore_grid_recycler_view") != null
-
-    /**
-     * The bottom tab bar exists in the tree only on tabbed surfaces —
-     * fullscreen viewers (stories, shared reels, DM threads) drop it
-     * entirely (dump-verified 21:11:54 / 21:11:57 / 21:12:30).
-     */
-    fun igTabBarPresent(root: AccessibilityNodeInfo): Boolean =
-        findByIdSuffix(root, ":id/feed_tab") != null
-
-    /**
-     * Home feed on screen: Home tab selected and no clips viewer on top.
-     * Deliberately does NOT require the top action bar — Instagram hides
-     * it while scrolling (dump-verified 21:12:00: feed_tab selected, bar
-     * gone, feed fully browsable).
-     */
-    fun igHomeFeedOpen(root: AccessibilityNodeInfo): Boolean {
-        val tab = findByIdSuffix(root, ":id/feed_tab") ?: return false
-        if (!tab.isSelected || !tab.isVisibleToUser) return false
-        return !igClipsViewerOpen(root)
-    }
-
-    /** Stories viewer — ALLOWED. (Instagram internally names stories "reel".) */
-    fun igStoryViewerOpen(root: AccessibilityNodeInfo): Boolean =
-        visibleById(root, ":id/reel_viewer_root") != null ||
-            visibleById(root, ":id/reel_viewer_media_container") != null
-
-    /** DM inbox / thread — ALLOWED. */
-    fun igDirectOpen(root: AccessibilityNodeInfo): Boolean =
-        tabSel(root, ":id/direct_tab") ||
-            visibleById(root, ":id/inbox_refreshable_thread_list_recyclerview") != null ||
-            visibleById(root, ":id/direct_thread_view") != null ||
-            visibleById(root, ":id/direct_thread_toolbar") != null
-
     /**
      * True when this scroll event comes from the home feed list (not DMs, not stories).
      * Used to allow the story tray while punishing feed doomscrolling.
      */
-    fun igIsFeedScroll(event: AccessibilityEvent, root: AccessibilityNodeInfo): Boolean {
+    fun igIsFeedScroll(event: AccessibilityEvent, s: Snap): Boolean {
         val source = event.source ?: return false
         val id = source.viewIdResourceName ?: ""
         // Story tray is a horizontal list; feed scrolls are the vertical feed recycler.
@@ -209,46 +249,10 @@ object Detectors {
         // Horizontal-only scrolls are the story tray / post carousels — never
         // the feed. ID-independent, so it survives Instagram renames.
         if (event.scrollDeltaX != 0 && event.scrollDeltaY == 0) return false
-        if (!igHomeFeedOpen(root)) return false
+        if (!igHomeFeedOpen(s)) return false
         // Heuristic: vertical scrollable container on the home surface.
         return source.className?.contains("RecyclerView") == true ||
             source.className?.contains("ListView") == true
-    }
-
-    /**
-     * Top edge for the feed blackout on the home surface: just under the
-     * story tray when it's findable, otherwise a 30%-of-screen fallback
-     * that still leaves the tray region usable.
-     */
-    fun igFeedCoverTop(root: AccessibilityNodeInfo, screenHeight: Int): Int {
-        // Story tray (dump-verified: a RecyclerView described "reels tray
-        // container"; it scrolls away with the feed).
-        val tray = findByDesc(root, setOf("reels tray container"))
-            ?.takeIf { it.isVisibleToUser }
-        if (tray != null) {
-            val r = Rect()
-            tray.getBoundsInScreen(r)
-            if (r.bottom > 0 && r.bottom < screenHeight / 2) return r.bottom
-        }
-        // Tray scrolled away: cover from under the Instagram action bar.
-        val bar = visibleById(root, ":id/action_bar_title_view")
-        if (bar != null) {
-            val r = Rect()
-            bar.getBoundsInScreen(r)
-            if (r.bottom > 0) return r.bottom
-        }
-        return (screenHeight * 0.12f).toInt()
-    }
-
-    /** Bottom edge for the blackout: top of the bottom tab bar (feed_tab). */
-    fun igBottomNavTop(root: AccessibilityNodeInfo, screenHeight: Int): Int {
-        val tab = findByIdSuffix(root, ":id/feed_tab")
-        if (tab != null) {
-            val r = Rect()
-            tab.getBoundsInScreen(r)
-            if (r.top > 0) return r.top
-        }
-        return (screenHeight * 0.92f).toInt()
     }
 
     // ---------- TikTok ----------

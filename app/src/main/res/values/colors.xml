@@ -27,9 +27,9 @@
 
     <!-- Switch states — deliberately quiet, ember is not for routine toggles -->
     <color name="switch_thumb_on">#EDE5D8</color>
-    <color name="switch_thumb_off">#8F8674</color>
-    <color name="switch_track_on">#4E4534</color>
-    <color name="switch_track_off">#26211A</color>
+    <color name="switch_thumb_off">#6E6656</color>
+    <color name="switch_track_on">#5C513C</color>
+    <color name="switch_track_off">#2A241D</color>
 
     <!-- Overlay -->
     <color name="overlay_scrim">#F5120F0B</color>

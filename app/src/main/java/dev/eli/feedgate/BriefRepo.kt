@@ -30,19 +30,20 @@ object BriefRepo {
     const val MAX_ITEMS = 12
     private const val PER_TOPIC = 4
 
-    data class Topic(val key: String, val labelRes: Int, val url: String)
+    /** [source] is the display name — feed hosts lie (feedburner, hnrss). */
+    data class Topic(val key: String, val labelRes: Int, val url: String, val source: String)
 
     val TOPICS = listOf(
-        Topic("tech", R.string.topic_tech, "https://hnrss.org/frontpage"),
-        Topic("israel", R.string.topic_israel, "https://www.ynet.co.il/Integration/StoryRss2.xml"),
-        Topic("world", R.string.topic_world, "https://feeds.bbci.co.uk/news/world/rss.xml"),
-        Topic("business", R.string.topic_business, "https://feeds.bbci.co.uk/news/business/rss.xml"),
-        Topic("science", R.string.topic_science, "https://www.sciencedaily.com/rss/top/science.xml"),
-        Topic("ai", R.string.topic_ai, "https://venturebeat.com/category/ai/feed/"),
-        Topic("security", R.string.topic_security, "https://feeds.feedburner.com/TheHackersNews"),
-        Topic("design", R.string.topic_design, "https://www.smashingmagazine.com/feed/"),
-        Topic("health", R.string.topic_health, "https://www.sciencedaily.com/rss/health_medicine.xml"),
-        Topic("gym", R.string.topic_gym, "https://www.strongerbyscience.com/feed/"),
+        Topic("tech", R.string.topic_tech, "https://hnrss.org/frontpage", "news.ycombinator.com"),
+        Topic("israel", R.string.topic_israel, "https://www.ynet.co.il/Integration/StoryRss2.xml", "ynet.co.il"),
+        Topic("world", R.string.topic_world, "https://feeds.bbci.co.uk/news/world/rss.xml", "bbc.co.uk"),
+        Topic("business", R.string.topic_business, "https://feeds.bbci.co.uk/news/business/rss.xml", "bbc.co.uk"),
+        Topic("science", R.string.topic_science, "https://www.sciencedaily.com/rss/top/science.xml", "sciencedaily.com"),
+        Topic("ai", R.string.topic_ai, "https://venturebeat.com/category/ai/feed/", "venturebeat.com"),
+        Topic("security", R.string.topic_security, "https://feeds.feedburner.com/TheHackersNews", "thehackernews.com"),
+        Topic("design", R.string.topic_design, "https://www.smashingmagazine.com/feed/", "smashingmagazine.com"),
+        Topic("health", R.string.topic_health, "https://www.sciencedaily.com/rss/health_medicine.xml", "sciencedaily.com"),
+        Topic("gym", R.string.topic_gym, "https://www.strongerbyscience.com/feed/", "strongerbyscience.com"),
     )
 
     data class Item(
@@ -80,7 +81,10 @@ object BriefRepo {
         }
 
         // Round-robin interleave so one topic can't crowd out the rest.
-        val lists = topicKeys.mapNotNull { store[it] }.filter { it.isNotEmpty() }
+        // Curated TOPICS order, not HashSet order — the MAX_ITEMS cut must
+        // be deterministic.
+        val lists = TOPICS.filter { it.key in topicKeys }
+            .mapNotNull { store[it.key] }.filter { it.isNotEmpty() }
         val brief = mutableListOf<Item>()
         var i = 0
         while (brief.size < MAX_ITEMS && lists.any { i < it.size }) {
@@ -92,13 +96,14 @@ object BriefRepo {
         return brief
     }
 
-    /** All topics fetched concurrently; overall deadline ~8s per thread join. */
+    /** All topics fetched concurrently under ONE overall 8s deadline. */
     private fun fetchParallel(topics: List<Topic>): Map<String, List<Item>> {
         val results = ConcurrentHashMap<String, List<Item>>()
         val threads = topics.map { t ->
             Thread { results[t.key] = fetchTopic(t) }.apply { start() }
         }
-        threads.forEach { it.join(8_000) }
+        val deadline = android.os.SystemClock.uptimeMillis() + 8_000
+        threads.forEach { it.join(maxOf(1L, deadline - android.os.SystemClock.uptimeMillis())) }
         return results
     }
 
@@ -107,25 +112,26 @@ object BriefRepo {
         conn.connectTimeout = 6_000
         conn.readTimeout = 6_000
         conn.instanceFollowRedirects = true
-        conn.setRequestProperty("User-Agent", "FeedGate/1.5 (personal)")
+        conn.setRequestProperty(
+            "User-Agent", "FeedGate/${BuildConfig.VERSION_NAME} (personal)"
+        )
         val bytes = conn.inputStream.use { it.readBytes() }
         val charset = charsetOf(conn.contentType)
         conn.disconnect()
-        val host = URL(topic.url).host.removePrefix("www.").removePrefix("feeds.")
-        parseRss(String(bytes, charset)).take(PER_TOPIC).map { raw ->
-            Item(topic.key, raw.title, raw.link, host, raw.image)
+        parseRss(bytes, charset).take(PER_TOPIC).map { raw ->
+            Item(topic.key, raw.title, raw.link, topic.source, raw.image)
         }
     } catch (t: Throwable) {
         Log.w(Detectors.TAG, "brief fetch failed for ${topic.key}: $t")
         emptyList()
     }
 
-    /** charset from the Content-Type header; UTF-8 otherwise. */
-    private fun charsetOf(contentType: String?): Charset = try {
+    /** charset from the Content-Type header, or null to let the prolog win. */
+    private fun charsetOf(contentType: String?): Charset? = try {
         contentType?.substringAfter("charset=", "")?.substringBefore(';')?.trim()
-            ?.takeIf { it.isNotEmpty() }?.let { Charset.forName(it) } ?: Charsets.UTF_8
+            ?.takeIf { it.isNotEmpty() }?.let { Charset.forName(it) }
     } catch (t: Throwable) {
-        Charsets.UTF_8
+        null
     }
 
     private data class RawItem(val title: String, val link: String, val image: String?)
@@ -139,11 +145,12 @@ object BriefRepo {
      * (ynet's style). A malformed token mid-feed keeps whatever parsed
      * cleanly before it.
      */
-    private fun parseRss(xml: String): List<RawItem> {
+    private fun parseRss(bytes: ByteArray, charset: Charset?): List<RawItem> {
         val out = mutableListOf<RawItem>()
         try {
             val parser = Xml.newPullParser()
-            parser.setInput(xml.reader())
+            // null encoding => the parser honors the XML prolog / BOM.
+            parser.setInput(java.io.ByteArrayInputStream(bytes), charset?.name())
             var inItem = false
             var title: String? = null
             var link: String? = null

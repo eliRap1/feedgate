@@ -11,8 +11,8 @@ import java.net.URL
 
 /**
  * Minimal self-updater against the public GitHub releases feed.
- * Network is used ONLY here, only over HTTPS to github.com, and only when
- * triggered from the app (open-time check is throttled to once per 6h).
+ * HTTPS to github.com only, and only when the app is open (the open-time
+ * check is throttled to once per 6h). The blocker service never calls this.
  */
 object Updater {
 
@@ -48,7 +48,9 @@ object Updater {
 
     /** "v1.10" vs "1.9" → true. Numeric per-part compare, not string compare. */
     fun isNewer(tag: String, current: String): Boolean {
-        fun parts(v: String) = v.removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }
+        // Leading digits only: "15b" -> 15, "15-hotfix" -> 15.
+        fun parts(v: String) = v.removePrefix("v").split(".")
+            .map { p -> Regex("\\d+").find(p)?.value?.toIntOrNull() ?: 0 }
         val a = parts(tag)
         val b = parts(current)
         for (i in 0 until maxOf(a.size, b.size)) {

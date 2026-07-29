@@ -107,7 +107,8 @@
     <style name="Widget.FeedGate.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="thumbTint">@color/switch_thumb</item>
         <item name="trackTint">@color/switch_track</item>
-        <item name="trackDecorationTint">@android:color/transparent</item>
+        <!-- Outline stays: without it the OFF track vanishes into the card. -->
+        <item name="trackDecorationTint">@color/hairline_bright</item>
         <item name="android:minHeight">52dp</item>
         <item name="android:textAppearance">@style/TextAppearance.FeedGate.Body</item>
         <item name="android:paddingStart">2dp</item>
