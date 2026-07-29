@@ -43,6 +43,6 @@ The detectors match view IDs and content-descriptions, which drift across app ve
 
 ## Known limits
 
-- Content-descriptions are locale-dependent ("Reels", "Home", "Inbox"). If your apps run in Hebrew, add the Hebrew descriptions to the sets in `Detectors.kt` (e.g. "רילס", "בית", "תיבת דואר נכנס").
+- Content-descriptions are locale-dependent. English AND Hebrew descriptions ship built-in (v1.2); for any other app language, add the localized strings to the sets in `Detectors.kt` via Inspector mode.
 - TikTok's DM-only web version is too limited to be an alternative; this in-app approach is the reliable way to keep streaks.
 - Battery/perf impact is negligible: the service only receives events from the two packages listed in the config.

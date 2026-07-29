@@ -1,157 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingStart="@dimen/space_5"
+        android:paddingEnd="@dimen/space_5"
+        android:paddingTop="@dimen/space_6"
+        android:paddingBottom="@dimen/space_4">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="FeedGate"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.FeedGate.Display" />
 
-        <TextView
-            android:id="@+id/serviceStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Service: unknown"
-            android:textSize="14sp" />
-
-        <Button
-            android:id="@+id/btnEnableService"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Enable accessibility service" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Intentional watching"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/passStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="No active pass"
-            android:textSize="14sp" />
-
+        <!-- Service status pill -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="@dimen/space_3"
+            android:background="@drawable/bg_status_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_3"
+            android:paddingEnd="@dimen/space_4"
+            android:paddingTop="7dp"
+            android:paddingBottom="7dp">
 
-            <Button
-                android:id="@+id/btnPass10"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="10-min pass" />
+            <View
+                android:id="@+id/statusDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/dot_off" />
 
-            <Button
-                android:id="@+id/btnPass30"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/serviceStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="30-min pass" />
+                android:layout_marginStart="@dimen/space_2"
+                android:text="@string/status_off"
+                android:textAppearance="@style/TextAppearance.FeedGate.Mono" />
         </LinearLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEnableService"
+            style="@style/Widget.FeedGate.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:text="@string/btn_enable_service" />
+
+        <!-- Intentional watching -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.FeedGate.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            app:contentPadding="@dimen/card_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_pass"
+                    android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+
+                <TextView
+                    android:id="@+id/passStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:minHeight="36dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/pass_none"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Body" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPass10"
+                        style="@style/Widget.FeedGate.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/space_3"
+                        android:layout_weight="1"
+                        android:text="@string/btn_pass_10" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPass30"
+                        style="@style/Widget.FeedGate.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/btn_pass_30" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_3"
+                    android:text="@string/pass_hint"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Instagram -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.FeedGate.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            app:contentPadding="@dimen/card_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_instagram"
+                    android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swIgReels"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:text="@string/sw_ig_reels" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swIgExplore"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sw_ig_explore" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swDmGrace"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sw_dm_grace" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swIgFeedScroll"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sw_ig_feed_scroll" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIgDms"
+                    style="@style/Widget.FeedGate.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_3"
+                    android:text="@string/btn_ig_dms" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- TikTok -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.FeedGate.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            app:contentPadding="@dimen/card_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_tiktok"
+                    android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swTtFeed"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:text="@string/sw_tt_feed" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swTtAutoInbox"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sw_tt_auto_inbox" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Debug -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.FeedGate.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            app:contentPadding="@dimen/card_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_debug"
+                    android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swInspector"
+                    style="@style/Widget.FeedGate.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:text="@string/sw_inspector" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/debug_hint"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Passes unlock all feeds after a 10-second countdown — enough time to ask yourself if you actually want this. Tap again during the countdown to cancel, or tap an active pass status to end it early."
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Instagram"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swIgReels"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Block Reels" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swIgExplore"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Block Explore" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swDmGrace"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Allow reels opened from DMs (one reel, swiping blocks)" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swIgFeedScroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Block feed scrolling (story tray stays usable)" />
-
-        <Button
-            android:id="@+id/btnIgDms"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Open Instagram DMs" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="TikTok"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swTtFeed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Block For You / Friends feed" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swTtAutoInbox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Auto-jump to Inbox when feed opens" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Debug"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swInspector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Inspector mode (dump view tree to logcat)" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="If a block stops working after an app update, turn on Inspector mode, open the offending screen, run `adb logcat -s FeedGate`, and update the selectors in Detectors.kt."
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/space_6"
+            android:gravity="center"
+            android:text="@string/footer_privacy"
+            android:textAppearance="@style/TextAppearance.FeedGate.Mono"
+            android:textColor="@color/bone_faint" />
     </LinearLayout>
 </ScrollView>

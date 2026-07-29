@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 4dp base scale -->
+    <dimen name="space_1">4dp</dimen>
+    <dimen name="space_2">8dp</dimen>
+    <dimen name="space_3">12dp</dimen>
+    <dimen name="space_4">16dp</dimen>
+    <dimen name="space_5">20dp</dimen>
+    <dimen name="space_6">24dp</dimen>
+    <dimen name="space_7">32dp</dimen>
+
+    <dimen name="card_radius">20dp</dimen>
+    <dimen name="card_padding">18dp</dimen>
+    <dimen name="pill_radius">999dp</dimen>
+    <dimen name="touch_min">48dp</dimen>
+</resources>

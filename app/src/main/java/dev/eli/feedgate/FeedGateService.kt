@@ -153,6 +153,17 @@ class FeedGateService : AccessibilityService() {
         try {
             wm.addView(view, lp)
             overlay = view
+            // One quiet entrance: fade + settle. System animator scale is honored.
+            view.findViewById<View>(R.id.overlayContent)?.let { content ->
+                content.alpha = 0f
+                content.scaleX = 0.97f
+                content.scaleY = 0.97f
+                content.animate()
+                    .alpha(1f).scaleX(1f).scaleY(1f)
+                    .setDuration(200)
+                    .setInterpolator(android.view.animation.DecelerateInterpolator())
+                    .start()
+            }
         } catch (t: Throwable) {
             Log.w(Detectors.TAG, "overlay failed", t)
         }
@@ -161,6 +172,16 @@ class FeedGateService : AccessibilityService() {
             overlay?.let { runCatching { wm.removeView(it) } }
             overlay = null
         }, 900)
+    }
+
+    override fun onDestroy() {
+        // Don't leak a stuck overlay if the service dies inside the 900ms window.
+        handler.removeCallbacksAndMessages(null)
+        overlay?.let { v ->
+            runCatching { (getSystemService(WINDOW_SERVICE) as WindowManager).removeView(v) }
+        }
+        overlay = null
+        super.onDestroy()
     }
 
     override fun onInterrupt() {

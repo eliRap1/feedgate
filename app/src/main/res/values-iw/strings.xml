@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FeedGate</string>
+    <string name="service_label">חוסם FeedGate</string>
+    <string name="service_description">חוסם את הרילס והפיד של אינסטגרם ואת פיד ה־For You של טיקטוק, ומשאיר הודעות וסטוריז זמינים. FeedGate קורא תוכן מסך רק מאינסטגרם ומטיקטוק כדי לזהות איזה מסך פתוח. שום דבר לא יוצא מהמכשיר.</string>
+
+    <!-- Home screen -->
+    <string name="status_running">השירות פועל</string>
+    <string name="status_off">השירות כבוי</string>
+    <string name="btn_enable_service">הפעלת שירות נגישות</string>
+
+    <string name="section_pass">צפייה מכוונת</string>
+    <string name="pass_none">אין אישור פעיל</string>
+    <string name="pass_active">אישור פעיל — נותרו %1$d דק׳ · הקשה מסיימת</string>
+    <string name="pass_ended">האישור הסתיים</string>
+    <string name="pass_started">אישור של %1$d דקות פעיל</string>
+    <string name="unlocking_in">נפתח בעוד %1$d… הקשה מבטלת</string>
+    <string name="btn_pass_10">אישור 10 דק׳</string>
+    <string name="btn_pass_30">אישור 30 דק׳</string>
+    <string name="pass_hint">אישור פותח את כל הפידים אחרי ספירה לאחור של 10 שניות — מספיק זמן לשאול אם אתה באמת רוצה את זה. הקשה נוספת בזמן הספירה מבטלת.</string>
+
+    <string name="section_instagram">אינסטגרם</string>
+    <string name="sw_ig_reels">חסימת רילס</string>
+    <string name="sw_ig_explore">חסימת Explore</string>
+    <string name="sw_dm_grace">לאפשר רילס שנפתח מהודעה — רילס אחד, החלקה חוסמת</string>
+    <string name="sw_ig_feed_scroll">חסימת גלילת פיד — שורת הסטוריז נשארת זמינה</string>
+    <string name="btn_ig_dms">פתיחת הודעות אינסטגרם</string>
+    <string name="ig_not_installed">אינסטגרם לא מותקן?</string>
+
+    <string name="section_tiktok">טיקטוק</string>
+    <string name="sw_tt_feed">חסימת פיד For You / חברים</string>
+    <string name="sw_tt_auto_inbox">מעבר אוטומטי ל־Inbox כשהפיד נפתח</string>
+
+    <string name="section_debug">דיבאג</string>
+    <string name="sw_inspector">מצב Inspector — שליחת עץ התצוגה ל־logcat</string>
+    <string name="debug_hint">אם חסימה מפסיקה לעבוד אחרי עדכון אפליקציה: הפעל מצב Inspector, פתח את המסך הבעייתי, הרץ adb logcat -s FeedGate ועדכן את הסלקטורים ב־Detectors.kt.</string>
+
+    <string name="footer_privacy">הכול במכשיר · שום דבר לא עוזב את הטלפון</string>
+
+    <!-- Block overlay -->
+    <string name="overlay_overline">feedgate</string>
+    <string name="overlay_title">לא היום.</string>
+    <string name="overlay_subtitle">הפיד חסום. הודעות וסטוריז עדיין פתוחים.</string>
+</resources>

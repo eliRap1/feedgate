@@ -3,6 +3,42 @@
     <string name="app_name">FeedGate</string>
     <string name="service_label">FeedGate blocker</string>
     <string name="service_description">Blocks Instagram Reels/feed and the TikTok For You feed while leaving DMs and stories usable. FeedGate reads screen content only from Instagram and TikTok to detect which screen is open. Nothing leaves your device.</string>
-    <string name="overlay_title">Not today 🙂</string>
+
+    <!-- Home screen -->
+    <string name="status_running">service running</string>
+    <string name="status_off">service off</string>
+    <string name="btn_enable_service">Enable accessibility service</string>
+
+    <string name="section_pass">Intentional watching</string>
+    <string name="pass_none">No active pass</string>
+    <string name="pass_active">Pass active — %1$d min left · tap to end</string>
+    <string name="pass_ended">Pass ended</string>
+    <string name="pass_started">%1$d-minute pass active</string>
+    <string name="unlocking_in">Unlocking in %1$d… tap to cancel</string>
+    <string name="btn_pass_10">10-min pass</string>
+    <string name="btn_pass_30">30-min pass</string>
+    <string name="pass_hint">Passes unlock every feed after a 10-second countdown — enough time to ask whether you actually want this. Tap again during the countdown to cancel.</string>
+
+    <string name="section_instagram">Instagram</string>
+    <string name="sw_ig_reels">Block Reels</string>
+    <string name="sw_ig_explore">Block Explore</string>
+    <string name="sw_dm_grace">Allow reels opened from DMs — one reel, swiping blocks</string>
+    <string name="sw_ig_feed_scroll">Block feed scrolling — story tray stays usable</string>
+    <string name="btn_ig_dms">Open Instagram DMs</string>
+    <string name="ig_not_installed">Instagram not installed?</string>
+
+    <string name="section_tiktok">TikTok</string>
+    <string name="sw_tt_feed">Block For You / Friends feed</string>
+    <string name="sw_tt_auto_inbox">Auto-jump to Inbox when feed opens</string>
+
+    <string name="section_debug">Debug</string>
+    <string name="sw_inspector">Inspector mode — dump view tree to logcat</string>
+    <string name="debug_hint">If a block stops working after an app update: turn on Inspector mode, open the offending screen, run adb logcat -s FeedGate, then update the selectors in Detectors.kt.</string>
+
+    <string name="footer_privacy">on-device only · nothing leaves your phone</string>
+
+    <!-- Block overlay -->
+    <string name="overlay_overline">feedgate</string>
+    <string name="overlay_title">Not today.</string>
     <string name="overlay_subtitle">Feed is blocked. DMs and stories are still open.</string>
 </resources>

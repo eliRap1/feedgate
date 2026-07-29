@@ -75,15 +75,16 @@ object Detectors {
         // Full-screen Reels surface.
         if (hasIdSuffix(root, ":id/clips_viewer_view_pager", ":id/clips_swipe_refresh_container",
                 ":id/clips_video_container")) return true
-        // Reels tab selected in the bottom bar.
-        val tab = findByDesc(root, setOf("Reels"))
+        // Reels tab selected in the bottom bar. (Hebrew locale included —
+        // content-descriptions follow the app language.)
+        val tab = findByDesc(root, setOf("Reels", "רילס"))
         return tab != null && tab.isSelected
     }
 
     /** True when Explore / search-grid is on screen. */
     fun igExploreOpen(root: AccessibilityNodeInfo): Boolean {
         if (hasIdSuffix(root, ":id/explore_grid_recycler_view", ":id/explore_topic_cluster_grid")) return true
-        val tab = findByDesc(root, setOf("Search and explore", "Search and Explore", "Explore"))
+        val tab = findByDesc(root, setOf("Search and explore", "Search and Explore", "Explore", "חיפוש"))
         return tab != null && tab.isSelected
     }
 
@@ -91,7 +92,7 @@ object Detectors {
     fun igHomeFeedOpen(root: AccessibilityNodeInfo): Boolean {
         // The DM inbox, story viewer and camera must NOT match:
         if (igStoryViewerOpen(root) || igDirectOpen(root)) return false
-        val tab = findByDesc(root, setOf("Home"))
+        val tab = findByDesc(root, setOf("Home", "בית"))
         if (tab != null && tab.isSelected) return true
         return hasIdSuffix(root, ":id/feed_swipe_refresh_layout", ":id/main_feed_recycler")
     }
@@ -123,27 +124,34 @@ object Detectors {
 
     // ---------- TikTok ----------
 
+    // Hebrew descriptions included alongside English — TikTok/Instagram
+    // localize content-descriptions with the app language.
+    private val TT_HOME = setOf("Home", "בית")
+    private val TT_FRIENDS = setOf("Friends", "חברים")
+    private val TT_INBOX = setOf("Inbox", "Messages", "תיבת דואר נכנס", "הודעות", "דואר נכנס")
+    private val TT_PROFILE = setOf("Profile", "Me", "פרופיל", "אני")
+
     /** True when the For You / Friends video feed is on screen. */
     fun ttFeedOpen(root: AccessibilityNodeInfo): Boolean {
         if (ttInboxOpen(root) || ttProfileOpen(root)) return false
-        val home = findByDesc(root, setOf("Home"))
+        val home = findByDesc(root, TT_HOME)
         if (home != null && home.isSelected) return true
-        val friends = findByDesc(root, setOf("Friends"))
+        val friends = findByDesc(root, TT_FRIENDS)
         return friends != null && friends.isSelected
     }
 
     /** Inbox tab (DMs live here) — ALLOWED. */
     fun ttInboxOpen(root: AccessibilityNodeInfo): Boolean {
-        val tab = findByDesc(root, setOf("Inbox", "Messages"))
+        val tab = findByDesc(root, TT_INBOX)
         return tab != null && tab.isSelected
     }
 
     fun ttProfileOpen(root: AccessibilityNodeInfo): Boolean {
-        val tab = findByDesc(root, setOf("Profile", "Me"))
+        val tab = findByDesc(root, TT_PROFILE)
         return tab != null && tab.isSelected
     }
 
     /** The Inbox bottom-tab node, for auto-redirect clicking. */
     fun ttInboxTab(root: AccessibilityNodeInfo): AccessibilityNodeInfo? =
-        findByDesc(root, setOf("Inbox", "Messages"))
+        findByDesc(root, TT_INBOX)
 }

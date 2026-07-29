@@ -5,14 +5,16 @@ plugins {
 
 android {
     namespace = "dev.eli.feedgate"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.eli.feedgate"
         minSdk = 26
+        // targetSdk stays 34 on purpose: 35+ enforces edge-to-edge and this
+        // personal app has no Play Store target-API requirement.
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2"
     }
 
     buildTypes {
@@ -31,6 +33,6 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.android.material:material:1.13.0")
 }
