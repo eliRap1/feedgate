@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FeedGate"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/serviceStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Service: unknown"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnEnableService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Enable accessibility service" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Intentional watching"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/passStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="No active pass"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnPass10"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="10-min pass" />
+
+            <Button
+                android:id="@+id/btnPass30"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="30-min pass" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Passes unlock all feeds after a 10-second countdown — enough time to ask yourself if you actually want this. Tap again during the countdown to cancel, or tap an active pass status to end it early."
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Instagram"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swIgReels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Block Reels" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swIgExplore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Block Explore" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swDmGrace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow reels opened from DMs (one reel, swiping blocks)" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swIgFeedScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Block feed scrolling (story tray stays usable)" />
+
+        <Button
+            android:id="@+id/btnIgDms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Open Instagram DMs" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="TikTok"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swTtFeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Block For You / Friends feed" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swTtAutoInbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Auto-jump to Inbox when feed opens" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Debug"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swInspector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Inspector mode (dump view tree to logcat)" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="If a block stops working after an app update, turn on Inspector mode, open the offending screen, run `adb logcat -s FeedGate`, and update the selectors in Detectors.kt."
+            android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>

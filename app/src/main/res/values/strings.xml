@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FeedGate</string>
+    <string name="service_label">FeedGate blocker</string>
+    <string name="service_description">Blocks Instagram Reels/feed and the TikTok For You feed while leaving DMs and stories usable. FeedGate reads screen content only from Instagram and TikTok to detect which screen is open. Nothing leaves your device.</string>
+    <string name="overlay_title">Not today 🙂</string>
+    <string name="overlay_subtitle">Feed is blocked. DMs and stories are still open.</string>
+</resources>
