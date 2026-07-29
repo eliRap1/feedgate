@@ -20,10 +20,11 @@ import android.view.accessibility.AccessibilityNodeInfo
  */
 class FeedGateService : AccessibilityService() {
 
-    private lateinit var prefs: Prefs
+    private val prefs by lazy { Prefs(this) }
     private val handler = Handler(Looper.getMainLooper())
     private var overlay: View? = null
     private var lastBlockAt = 0L
+    private var lastAutoInboxAt = 0L
 
     /** Last time a DM surface was on screen — powers the one-reel DM grace. */
     private var lastDirectSeenAt = 0L
@@ -34,20 +35,21 @@ class FeedGateService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        prefs = Prefs(this)
         Log.i(Detectors.TAG, "FeedGate service connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val pkg = event.packageName?.toString() ?: return
         val root = rootInActiveWindow ?: return
-
-        if (prefs.inspectorMode && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            Log.d(Detectors.TAG, "===== window changed: $pkg / ${event.className} =====")
-            Detectors.dumpTree(root)
-        }
+        // The event's package and the active window can disagree (system UI
+        // over the app, split screen) — never run detectors on the wrong tree.
+        if (root.packageName?.toString() != pkg) return
 
         try {
+            if (prefs.inspectorMode && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                Log.d(Detectors.TAG, "===== window changed: $pkg / ${event.className} =====")
+                Detectors.dumpTree(root)
+            }
             when {
                 pkg == Detectors.PKG_INSTAGRAM -> handleInstagram(event, root)
                 pkg in Detectors.PKG_TIKTOK -> handleTikTok(root)
@@ -61,28 +63,37 @@ class FeedGateService : AccessibilityService() {
     // ---------- Instagram ----------
 
     private fun handleInstagram(event: AccessibilityEvent, root: AccessibilityNodeInfo) {
-        if (passActive()) return
-
-        // Always-allowed surfaces short-circuit everything.
+        // DM bookkeeping runs even during a pass so the grace timestamp never
+        // freezes and grace works right after a pass expires.
         if (Detectors.igDirectOpen(root)) {
             lastDirectSeenAt = System.currentTimeMillis()
             dmGraceActive = false
             return
         }
+        if (passActive()) return
         if (Detectors.igStoryViewerOpen(root)) return
 
         if (prefs.blockIgReels && Detectors.igReelsOpen(root)) {
             // One-reel DM grace: entering the Reels viewer within a few seconds
             // of being in a DM means "she sent me this". Let it play, but the
-            // first swipe to the NEXT reel ends the grace and blocks.
+            // first swipe to the NEXT reel consumes the grace and blocks.
             if (prefs.dmGrace) {
                 val now = System.currentTimeMillis()
                 if (!dmGraceActive && now - lastDirectSeenAt < 8_000) {
                     dmGraceActive = true
+                    // Consume the window: one DM visit buys exactly one grace,
+                    // and the swipe-block below cannot re-arm it.
+                    lastDirectSeenAt = 0L
                     Log.i(Detectors.TAG, "DM grace: allowing shared reel")
                 }
                 if (dmGraceActive) {
-                    if (event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+                    // Only a swipe on the Reels pager ends the grace — comment
+                    // sheets and share trays emit scroll events too.
+                    val src = event.source
+                    val pagerScroll = event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED &&
+                        (src?.viewIdResourceName?.contains("clips") == true ||
+                            src?.className?.contains("ViewPager") == true)
+                    if (pagerScroll) {
                         dmGraceActive = false
                         block("Instagram Reels (swiped past shared reel)")
                     }
@@ -92,17 +103,24 @@ class FeedGateService : AccessibilityService() {
             block("Instagram Reels")
             return
         }
-        dmGraceActive = false
+        // Leaving Reels for a browsing surface ends any remaining grace.
+        if (dmGraceActive &&
+            (Detectors.igHomeFeedOpen(root) || Detectors.igExploreOpen(root))
+        ) {
+            dmGraceActive = false
+        }
         if (prefs.blockIgExplore && Detectors.igExploreOpen(root)) {
             block("Instagram Explore")
             return
         }
         // Feed scroll: story tray stays reachable, doomscrolling does not.
+        // No Back press here — the home surface hosts the story tray, so
+        // bouncing out would break stories. Just flash the wall.
         if (prefs.blockIgFeedScroll &&
             event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED &&
             Detectors.igIsFeedScroll(event.source, root)
         ) {
-            block("Instagram feed scroll")
+            block("Instagram feed scroll", showBack = false)
         }
     }
 
@@ -115,10 +133,15 @@ class FeedGateService : AccessibilityService() {
         if (!Detectors.ttFeedOpen(root)) return
 
         if (prefs.tikTokAutoInbox) {
+            val now = System.currentTimeMillis()
+            // Cooldown: give the click time to land instead of re-clicking on
+            // every content-changed event while the tab switch animates.
+            if (now - lastAutoInboxAt < 2_000) return
             val inbox = Detectors.ttInboxTab(root)
             val clickable = generateSequence(inbox) { it.parent }
                 .firstOrNull { it.isClickable }
             if (clickable != null) {
+                lastAutoInboxAt = now
                 Log.i(Detectors.TAG, "TikTok feed detected -> redirecting to Inbox")
                 clickable.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 flashOverlay(showBack = false)
@@ -130,12 +153,12 @@ class FeedGateService : AccessibilityService() {
 
     // ---------- blocking machinery ----------
 
-    private fun block(what: String) {
+    private fun block(what: String, showBack: Boolean = true) {
         val now = System.currentTimeMillis()
         if (now - lastBlockAt < 1200) return // debounce
         lastBlockAt = now
         Log.i(Detectors.TAG, "BLOCK: $what")
-        flashOverlay(showBack = true)
+        flashOverlay(showBack)
     }
 
     /** Show the full-screen overlay briefly; optionally press Back underneath it. */
@@ -169,8 +192,12 @@ class FeedGateService : AccessibilityService() {
         }
         if (showBack) performGlobalAction(GLOBAL_ACTION_BACK)
         handler.postDelayed({
-            overlay?.let { runCatching { wm.removeView(it) } }
+            val v = overlay ?: return@postDelayed
             overlay = null
+            // Exit subtler and faster than the entrance — no hard pop.
+            v.animate().alpha(0f).setDuration(120)
+                .withEndAction { runCatching { wm.removeView(v) } }
+                .start()
         }, 900)
     }
 

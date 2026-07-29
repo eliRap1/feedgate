@@ -31,8 +31,8 @@
             android:orientation="horizontal"
             android:paddingStart="@dimen/space_3"
             android:paddingEnd="@dimen/space_4"
-            android:paddingTop="7dp"
-            android:paddingBottom="7dp">
+            android:paddingTop="@dimen/space_2"
+            android:paddingBottom="@dimen/space_2">
 
             <View
                 android:id="@+id/statusDot"
@@ -81,8 +81,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_2"
-                    android:minHeight="36dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
+                    android:minHeight="@dimen/touch_min"
                     android:text="@string/pass_none"
                     android:textAppearance="@style/TextAppearance.FeedGate.Body" />
 

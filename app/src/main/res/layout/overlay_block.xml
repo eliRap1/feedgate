@@ -17,21 +17,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:letterSpacing="0.3"
             android:text="@string/overlay_overline"
-            android:textColor="@color/bone_faint"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.FeedGate.Overline" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_2"
-            android:fontFamily="sans-serif-condensed-medium"
-            android:letterSpacing="0.02"
             android:text="@string/overlay_title"
-            android:textColor="@color/bone"
-            android:textSize="34sp" />
+            android:textAppearance="@style/TextAppearance.FeedGate.Display" />
 
         <View
             android:layout_width="28dp"
@@ -44,9 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_4"
             android:gravity="center"
-            android:lineSpacingMultiplier="1.3"
             android:text="@string/overlay_subtitle"
-            android:textColor="@color/bone_dim"
-            android:textSize="15sp" />
+            android:textAppearance="@style/TextAppearance.FeedGate.Body"
+            android:textColor="@color/bone_dim" />
     </LinearLayout>
 </FrameLayout>

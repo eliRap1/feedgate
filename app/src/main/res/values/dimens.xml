@@ -10,7 +10,6 @@
     <dimen name="space_7">32dp</dimen>
 
     <dimen name="card_radius">20dp</dimen>
-    <dimen name="card_padding">18dp</dimen>
-    <dimen name="pill_radius">999dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
     <dimen name="touch_min">48dp</dimen>
 </resources>

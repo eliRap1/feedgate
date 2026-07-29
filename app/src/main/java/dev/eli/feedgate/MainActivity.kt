@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: Prefs
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private var countdown: Runnable? = null
+    private var countdownOwner = 0
     private val passTicker = Runnable { refreshPassStatus() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,9 +89,11 @@ class MainActivity : AppCompatActivity() {
         val label = btn.text
         btn.setOnClickListener {
             if (countdown != null) {
-                // A countdown is running — treat any tap as cancel.
+                // Tapping the counting button cancels; tapping the sibling
+                // cancels it and starts this button's countdown instead.
+                val wasThisButton = countdownOwner == id
                 cancelCountdown()
-                return@setOnClickListener
+                if (wasThisButton) return@setOnClickListener
             }
             var secondsLeft = 10
             val r = object : Runnable {
@@ -113,6 +116,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             countdown = r
+            countdownOwner = id
             handler.post(r)
         }
     }
@@ -120,6 +124,7 @@ class MainActivity : AppCompatActivity() {
     private fun cancelCountdown() {
         countdown?.let { handler.removeCallbacks(it) }
         countdown = null
+        countdownOwner = 0
         findViewById<Button>(R.id.btnPass10).setText(R.string.btn_pass_10)
         findViewById<Button>(R.id.btnPass30).setText(R.string.btn_pass_30)
     }
@@ -132,10 +137,13 @@ class MainActivity : AppCompatActivity() {
         if (left > 0) {
             tv.text = getString(R.string.pass_active, left / 60_000 + 1)
             tv.setTextColor(getColor(R.color.ember))
+            tv.isClickable = true
             handler.postDelayed(passTicker, 30_000)
         } else {
             tv.setText(R.string.pass_none)
             tv.setTextColor(getColor(R.color.bone))
+            // Nothing to end — don't announce a dead tap target.
+            tv.isClickable = false
         }
     }
 

@@ -38,22 +38,45 @@ object Detectors {
         return null
     }
 
-    private fun findByDesc(root: AccessibilityNodeInfo, descs: Set<String>): AccessibilityNodeInfo? {
+    /**
+     * Find a node whose content-description matches. With [requireSelected]
+     * the search continues past unselected matches — critical for tab checks,
+     * where the first desc match in the tree may not be the selected node.
+     */
+    private fun findByDesc(
+        root: AccessibilityNodeInfo,
+        descs: Set<String>,
+        requireSelected: Boolean = false,
+    ): AccessibilityNodeInfo? {
         val stack = ArrayDeque<AccessibilityNodeInfo>()
         stack.add(root)
         while (stack.isNotEmpty()) {
             val n = stack.removeLast()
             val d = n.contentDescription?.toString()
             if (d != null && descs.any { d.equals(it, ignoreCase = true) || d.startsWith("$it,") || d.startsWith("$it ") }) {
-                return n
+                if (!requireSelected || n.isSelected) return n
             }
             for (i in 0 until n.childCount) n.getChild(i)?.let { stack.add(it) }
         }
         return null
     }
 
-    private fun hasIdSuffix(root: AccessibilityNodeInfo, vararg suffixes: String): Boolean =
-        suffixes.any { findByIdSuffix(root, it) != null }
+    /** True if a tab with one of these descriptions is currently selected. */
+    private fun selectedTab(root: AccessibilityNodeInfo, descs: Set<String>): Boolean =
+        findByDesc(root, descs, requireSelected = true) != null
+
+    // Single DFS for all suffixes — this runs on every event, keep it one pass.
+    private fun hasIdSuffix(root: AccessibilityNodeInfo, vararg suffixes: String): Boolean {
+        val stack = ArrayDeque<AccessibilityNodeInfo>()
+        stack.add(root)
+        while (stack.isNotEmpty()) {
+            val n = stack.removeLast()
+            val id = n.viewIdResourceName
+            if (id != null && suffixes.any { id.endsWith(it) }) return true
+            for (i in 0 until n.childCount) n.getChild(i)?.let { stack.add(it) }
+        }
+        return false
+    }
 
     /** Dump the node tree to logcat (inspector mode). */
     fun dumpTree(node: AccessibilityNodeInfo?, depth: Int = 0) {
@@ -77,23 +100,20 @@ object Detectors {
                 ":id/clips_video_container")) return true
         // Reels tab selected in the bottom bar. (Hebrew locale included —
         // content-descriptions follow the app language.)
-        val tab = findByDesc(root, setOf("Reels", "רילס"))
-        return tab != null && tab.isSelected
+        return selectedTab(root, setOf("Reels", "רילס"))
     }
 
     /** True when Explore / search-grid is on screen. */
     fun igExploreOpen(root: AccessibilityNodeInfo): Boolean {
         if (hasIdSuffix(root, ":id/explore_grid_recycler_view", ":id/explore_topic_cluster_grid")) return true
-        val tab = findByDesc(root, setOf("Search and explore", "Search and Explore", "Explore", "חיפוש"))
-        return tab != null && tab.isSelected
+        return selectedTab(root, setOf("Search and explore", "Search and Explore", "Explore", "חיפוש"))
     }
 
     /** True when the home feed surface is on screen (story tray lives here too). */
     fun igHomeFeedOpen(root: AccessibilityNodeInfo): Boolean {
         // The DM inbox, story viewer and camera must NOT match:
         if (igStoryViewerOpen(root) || igDirectOpen(root)) return false
-        val tab = findByDesc(root, setOf("Home", "בית"))
-        if (tab != null && tab.isSelected) return true
+        if (selectedTab(root, setOf("Home", "בית"))) return true
         return hasIdSuffix(root, ":id/feed_swipe_refresh_layout", ":id/main_feed_recycler")
     }
 
@@ -134,22 +154,13 @@ object Detectors {
     /** True when the For You / Friends video feed is on screen. */
     fun ttFeedOpen(root: AccessibilityNodeInfo): Boolean {
         if (ttInboxOpen(root) || ttProfileOpen(root)) return false
-        val home = findByDesc(root, TT_HOME)
-        if (home != null && home.isSelected) return true
-        val friends = findByDesc(root, TT_FRIENDS)
-        return friends != null && friends.isSelected
+        return selectedTab(root, TT_HOME) || selectedTab(root, TT_FRIENDS)
     }
 
     /** Inbox tab (DMs live here) — ALLOWED. */
-    fun ttInboxOpen(root: AccessibilityNodeInfo): Boolean {
-        val tab = findByDesc(root, TT_INBOX)
-        return tab != null && tab.isSelected
-    }
+    fun ttInboxOpen(root: AccessibilityNodeInfo): Boolean = selectedTab(root, TT_INBOX)
 
-    fun ttProfileOpen(root: AccessibilityNodeInfo): Boolean {
-        val tab = findByDesc(root, TT_PROFILE)
-        return tab != null && tab.isSelected
-    }
+    fun ttProfileOpen(root: AccessibilityNodeInfo): Boolean = selectedTab(root, TT_PROFILE)
 
     /** The Inbox bottom-tab node, for auto-redirect clicking. */
     fun ttInboxTab(root: AccessibilityNodeInfo): AccessibilityNodeInfo? =

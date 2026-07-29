@@ -14,7 +14,7 @@
     <string name="pass_active">Pass active — %1$d min left · tap to end</string>
     <string name="pass_ended">Pass ended</string>
     <string name="pass_started">%1$d-minute pass active</string>
-    <string name="unlocking_in">Unlocking in %1$d… tap to cancel</string>
+    <string name="unlocking_in">Cancel · %1$d</string>
     <string name="btn_pass_10">10-min pass</string>
     <string name="btn_pass_30">30-min pass</string>
     <string name="pass_hint">Passes unlock every feed after a 10-second countdown — enough time to ask whether you actually want this. Tap again during the countdown to cancel.</string>

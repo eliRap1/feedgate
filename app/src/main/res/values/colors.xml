@@ -9,15 +9,17 @@
     <!-- Ground -->
     <color name="ink">#14110C</color>          <!-- window background -->
     <color name="ink_raised">#1D1914</color>   <!-- cards -->
-    <color name="ink_well">#26211A</color>     <!-- inputs / tonal buttons -->
+    <color name="ink_well">#2A241D</color>     <!-- inputs / tonal buttons -->
     <color name="hairline">#2E281F</color>     <!-- card strokes, dividers -->
+    <color name="hairline_bright">#3C3428</color> <!-- control boundaries on cards -->
 
     <!-- Text -->
     <color name="bone">#EDE5D8</color>         <!-- primary text -->
     <color name="bone_dim">#A89F8F</color>     <!-- secondary text -->
     <color name="bone_faint">#8F8674</color>   <!-- captions (still ≥4.5:1 on ink) -->
 
-    <!-- Signal (use sparingly) -->
+    <!-- Signal (use sparingly). Ember marks needs-action moments ONLY:
+         enable-service CTA + off-dot, active pass, block overlay. -->
     <color name="ember">#E0703A</color>        <!-- THE accent -->
     <color name="ember_dim">#B85A2E</color>    <!-- pressed accent -->
     <color name="sage">#9DB48A</color>         <!-- "service running" only -->
