@@ -124,12 +124,23 @@ class FeedGateService : AccessibilityService() {
             val now = System.currentTimeMillis()
             if (now - lastBlockAt < 1200) return // same debounce as block()
             lastBlockAt = now
-            Log.i(Detectors.TAG, "BLOCK: Instagram feed scroll")
-            if (prefs.igAutoDms && openIgDms()) {
-                Log.i(Detectors.TAG, "Instagram feed scroll -> redirecting to DMs")
-            }
+            Log.i(Detectors.TAG, "BLOCK: Instagram feed scroll -> ${prefs.igFeedDest}")
+            // Overlay FIRST: a visible window of ours exempts the redirect
+            // from Android's background-activity-launch restrictions.
             flashOverlay(showBack = false)
+            when (prefs.igFeedDest) {
+                "dms" -> openIgDms()
+                "brief" -> openBrief()
+            }
         }
+    }
+
+    /** Land the doomscroll urge on the finite Daybrief instead. */
+    private fun openBrief() = runCatching {
+        startActivity(
+            android.content.Intent(this, BriefActivity::class.java)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
     /** Deep-link into the Instagram DM inbox. Returns false if IG rejects it. */

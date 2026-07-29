@@ -24,7 +24,6 @@
     <string name="sw_ig_explore">חסימת Explore</string>
     <string name="sw_dm_grace">לאפשר רילס שנפתח מהודעה — רילס אחד, החלקה חוסמת</string>
     <string name="sw_ig_feed_scroll">חסימת גלילת פיד — שורת הסטוריז נשארת זמינה</string>
-    <string name="sw_ig_auto_dms">מעבר להודעות כשגוללים בפיד</string>
     <string name="btn_ig_dms">פתיחת הודעות אינסטגרם</string>
     <string name="ig_not_installed">אינסטגרם לא מותקן?</string>
 
@@ -36,6 +35,29 @@
     <string name="sw_inspector">מצב Inspector — שליחת עץ התצוגה ל־logcat</string>
     <string name="debug_hint">אם חסימה מפסיקה לעבוד אחרי עדכון אפליקציה: יש להפעיל מצב Inspector, לפתוח את המסך הבעייתי, להריץ adb logcat -s FeedGate ולעדכן את הסלקטורים ב־Detectors.kt.</string>
 
+    <!-- Daybrief -->
+    <string name="section_brief">תקציר יומי</string>
+    <string name="brief_screen_title">תקציר יומי</string>
+    <string name="brief_caption">תקציר יומי סופי במקום הפיד — בוחרים נושאים, קוראים, וזהו.</string>
+    <string name="btn_open_brief">פתיחת התקציר של היום</string>
+    <string name="brief_empty">יש לבחור לפחות נושא אחד באפליקציית FeedGate.</string>
+    <string name="brief_loading">טוען את התקציר של היום…</string>
+    <string name="brief_offline">הטעינה נכשלה — יש חיבור לאינטרנט?</string>
+    <string name="brief_done_title">זהו להיום.</string>
+    <string name="brief_done_sub">התקציר סופי בכוונה. לכו תעשו משהו.</string>
+    <string name="ig_dest_label">כשגוללים בפיד</string>
+    <string name="dest_wall">חסימה</string>
+    <string name="dest_dms">הודעות</string>
+    <string name="dest_brief">תקציר</string>
+    <string name="topic_tech">טכנולוגיה</string>
+    <string name="topic_israel">ישראל</string>
+    <string name="topic_world">עולם</string>
+    <string name="topic_business">עסקים</string>
+    <string name="topic_science">מדע</string>
+    <string name="topic_ai">בינה מלאכותית</string>
+    <string name="topic_design">עיצוב</string>
+    <string name="topic_health">בריאות</string>
+
     <!-- App / updates -->
     <string name="section_app">אפליקציה</string>
     <string name="version_line">גרסה %1$s</string>
@@ -45,7 +67,7 @@
     <string name="update_downloading">מוריד…</string>
     <string name="update_failed">בדיקת העדכון נכשלה — יש חיבור לאינטרנט?</string>
 
-    <string name="footer_privacy">הכול במכשיר · רשת משמשת רק לעדכונים</string>
+    <string name="footer_privacy">החוסם במכשיר בלבד · רשת רק לעדכונים ולתקציר</string>
 
     <!-- Block overlay -->
     <string name="overlay_overline">feedgate</string>

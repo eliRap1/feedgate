@@ -121,6 +121,50 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Daybrief — the anti-feed -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.FeedGate.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            app:contentPadding="@dimen/card_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_brief"
+                    android:textAppearance="@style/TextAppearance.FeedGate.SectionLabel" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/brief_caption"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/topicChips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_3"
+                    app:chipSpacingHorizontal="@dimen/space_2"
+                    app:chipSpacingVertical="@dimen/space_1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenBrief"
+                    style="@style/Widget.FeedGate.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_3"
+                    android:text="@string/btn_open_brief" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Instagram -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.FeedGate.Card"
@@ -169,12 +213,45 @@
                     android:layout_height="wrap_content"
                     android:text="@string/sw_ig_feed_scroll" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/swIgAutoDms"
-                    style="@style/Widget.FeedGate.Switch"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/ig_dest_label"
+                    android:textAppearance="@style/TextAppearance.FeedGate.Caption" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/igDestGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/sw_ig_auto_dms" />
+                    android:layout_marginTop="@dimen/space_2"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <Button
+                        android:id="@+id/destWall"
+                        style="@style/Widget.FeedGate.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/dest_wall" />
+
+                    <Button
+                        android:id="@+id/destDms"
+                        style="@style/Widget.FeedGate.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/dest_dms" />
+
+                    <Button
+                        android:id="@+id/destBrief"
+                        style="@style/Widget.FeedGate.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/dest_brief" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnIgDms"

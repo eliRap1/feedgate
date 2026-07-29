@@ -112,4 +112,27 @@
         <item name="android:textAppearance">@style/TextAppearance.FeedGate.Body</item>
         <item name="android:paddingStart">2dp</item>
     </style>
+
+    <!-- Topic chips — same quiet checked language as the switches -->
+    <style name="Widget.FeedGate.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_bg</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="chipStrokeColor">@color/hairline_bright</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="checkedIconTint">@color/bone</item>
+        <item name="rippleColor">@color/hairline</item>
+    </style>
+
+    <!-- 3-way destination toggle (Wall / DMs / Brief) -->
+    <style name="Widget.FeedGate.Button.Toggle" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/chip_bg</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="strokeColor">@color/hairline_bright</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="rippleColor">@color/hairline</item>
+    </style>
 </resources>

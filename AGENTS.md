@@ -42,6 +42,8 @@ Zulu JDK 21, AGP 8.13.1, SDK platform 36 at `%LOCALAPPDATA%\Android\Sdk`.
 - Bilingual: every user-facing string in `values/` AND `values-iw/`.
 - Accessibility service is restricted to IG/TikTok packages in
   `accessibility_service_config.xml` — keep it that way (privacy stance).
-- Network access exists ONLY in `Updater.kt` (HTTPS to github.com releases,
-  user-visible, throttled). The blocker service itself never touches the
-  network — keep it so.
+- Network access exists ONLY in `Updater.kt` (github.com releases, throttled)
+  and `BriefRepo.kt` (curated RSS list, once per topic per day). The blocker
+  service itself never touches the network — keep it so.
+- Daybrief is deliberately FINITE: ≤12 items/day, per-topic fetched once per
+  day, hard end card. Never add infinite scroll, pull-to-refresh, or ranking.

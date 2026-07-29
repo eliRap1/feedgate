@@ -9,6 +9,9 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 
 class MainActivity : AppCompatActivity() {
@@ -38,7 +41,40 @@ class MainActivity : AppCompatActivity() {
         bindSwitch(R.id.swIgReels, { prefs.blockIgReels }, { prefs.blockIgReels = it })
         bindSwitch(R.id.swIgExplore, { prefs.blockIgExplore }, { prefs.blockIgExplore = it })
         bindSwitch(R.id.swIgFeedScroll, { prefs.blockIgFeedScroll }, { prefs.blockIgFeedScroll = it })
-        bindSwitch(R.id.swIgAutoDms, { prefs.igAutoDms }, { prefs.igAutoDms = it })
+
+        // Feed-scroll destination: Wall / DMs / Brief
+        val destGroup = findViewById<MaterialButtonToggleGroup>(R.id.igDestGroup)
+        destGroup.check(
+            when (prefs.igFeedDest) {
+                "dms" -> R.id.destDms
+                "brief" -> R.id.destBrief
+                else -> R.id.destWall
+            }
+        )
+        destGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) prefs.igFeedDest = when (checkedId) {
+                R.id.destDms -> "dms"
+                R.id.destBrief -> "brief"
+                else -> "wall"
+            }
+        }
+
+        // Daybrief topics + entry
+        val chips = findViewById<ChipGroup>(R.id.topicChips)
+        BriefRepo.TOPICS.forEach { topic ->
+            val chip = layoutInflater.inflate(R.layout.chip_topic, chips, false) as Chip
+            chip.setText(topic.labelRes)
+            chip.isChecked = topic.key in prefs.briefTopics
+            chip.setOnCheckedChangeListener { _, checked ->
+                val cur = prefs.briefTopics.toMutableSet()
+                if (checked) cur.add(topic.key) else cur.remove(topic.key)
+                prefs.briefTopics = cur
+            }
+            chips.addView(chip)
+        }
+        findViewById<Button>(R.id.btnOpenBrief).setOnClickListener {
+            startActivity(Intent(this, BriefActivity::class.java))
+        }
         bindSwitch(R.id.swTtFeed, { prefs.blockTikTokFeed }, { prefs.blockTikTokFeed = it })
         bindSwitch(R.id.swTtAutoInbox, { prefs.tikTokAutoInbox }, { prefs.tikTokAutoInbox = it })
         bindSwitch(R.id.swInspector, { prefs.inspectorMode }, { prefs.inspectorMode = it })

@@ -18,8 +18,9 @@
     <color name="bone_dim">#A89F8F</color>     <!-- secondary text -->
     <color name="bone_faint">#8F8674</color>   <!-- captions (still ≥4.5:1 on ink) -->
 
-    <!-- Signal (use sparingly). Ember marks needs-action moments ONLY:
-         enable-service CTA + off-dot, active pass, block overlay. -->
+    <!-- Signal (use sparingly). Ember marks "the warden speaks" moments ONLY:
+         enable-service CTA + off-dot, active pass, block overlay, and the
+         Daybrief full stop. Never on routine controls. -->
     <color name="ember">#E0703A</color>        <!-- THE accent -->
     <color name="ember_dim">#B85A2E</color>    <!-- pressed accent -->
     <color name="sage">#9DB48A</color>         <!-- "service running" only -->
