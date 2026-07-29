@@ -30,7 +30,32 @@ Zulu JDK 21, AGP 8.13.1, SDK platform 36 at `%LOCALAPPDATA%\Android\Sdk`.
 - `MainActivity.kt` — settings screen; pass buttons run a 10s countdown
   (deliberate friction) before unlocking.
 
+## Sandbox testing (fakegram/)
+
+`fakegram/` = Instagram test double (same package, same view IDs, same
+visibility semantics from real dumps). Full blocking matrix on emulator:
+
+```bash
+# build both, boot AVD pixel_7_-_api_36_0, install, enable service:
+adb shell settings put secure enabled_accessibility_services dev.eli.feedgate/dev.eli.feedgate.FeedGateService
+adb shell settings put secure accessibility_enabled 1
+adb shell am start -n com.instagram.android/.Main
+adb logcat -s FeedGate   # BLOCK / grace lines
+```
+
+Test-double gotchas learned the hard way: mark id-bearing containers
+importantForAccessibility=YES (Android prunes passive containers from the
+a11y tree) and keep a ticker view updating (static screens emit no events,
+detectors never re-run).
+
 ## Gotchas
+
+- **Service overlays MUST inflate via ContextThemeWrapper(Theme.FeedGate)**
+  — the raw service context has no Material theme; MaterialButton inflation
+  throws and runCatching eats it silently (this killed the blackout panel
+  for five releases).
+- **Cover window needs FLAG_LAYOUT_IN_SCREEN** — node bounds are screen
+  coordinates; without the flag the panel sits one status-bar too low.
 
 - **Instagram naming trap:** internally stories = `reel_*` (ALLOWED),
   Reels = `clips_*` (BLOCKED). Do not "fix" this.
