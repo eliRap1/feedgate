@@ -109,8 +109,22 @@ class FeedGateService : AccessibilityService() {
                         if (now - lastVerdictAt > 1_000) {
                             lastVerdictAt = now
                             runCatching {
+                                // cover=... is the panel's real state, so one
+                                // screenshot of the Debug card proves whether
+                                // the blackout attached on real Instagram.
+                                val screenH = resources.displayMetrics.heightPixels
+                                val cover = if (feedCover != null) {
+                                    "UP(${feedCoverTop}-${feedCoverBottom})"
+                                } else {
+                                    "down(want=${
+                                        runCatching { Detectors.igHomeFeedOpen(snap) }
+                                            .getOrDefault(false)
+                                    },top=${Detectors.igFeedCoverTop(snap, screenH)}," +
+                                        "bot=${Detectors.igBottomNavTop(snap, screenH)})"
+                                }
                                 prefs.lastVerdict =
-                                    clockFormat.format(java.util.Date()) + "  " +
+                                    clockFormat.format(java.util.Date()) +
+                                        "  cover=" + cover + "  " +
                                         Detectors.debugState(snap)
                             }
                         }
