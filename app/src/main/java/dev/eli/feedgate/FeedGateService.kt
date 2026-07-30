@@ -246,26 +246,52 @@ class FeedGateService : AccessibilityService() {
     private var feedCoverTop = -1
     private var feedCoverBottom = -1
 
+    /** Consecutive sync ticks that found no Instagram home surface. */
+    private var coverMisses = 0
+    private var coverSyncScheduled = false
+
     /**
-     * Instagram-only events reach this service, so leaving Instagram emits
-     * nothing — this poll retires the panel when IG is no longer in front.
+     * The panel must not depend on Instagram emitting events. A quiet feed,
+     * events filtered by the package guard on app entry, or a momentarily
+     * null rootInActiveWindow all used to leave the feed uncovered with
+     * nothing able to re-attach it (the old poll could only retire).
+     *
+     * This tick is a full SYNC: it attaches, updates and retires. It runs
+     * while Instagram is in front and stops itself once IG is gone and the
+     * panel is down, so it costs nothing when you're elsewhere.
      */
-    private val coverPoll = object : Runnable {
+    private val coverSync = object : Runnable {
         override fun run() {
+            coverSyncScheduled = false
             val root = rootInActiveWindow
-            val onHome = root != null &&
-                root.packageName?.toString() == Detectors.PKG_INSTAGRAM &&
-                runCatching { Detectors.igHomeFeedOpen(Detectors.snap(root)) }
-                    .getOrDefault(false)
-            if (!onHome || passActive() || !prefs.blockIgFeedScroll) {
-                removeFeedCover()
-            } else {
-                handler.postDelayed(this, 700)
+            val isIg = root?.packageName?.toString() == Detectors.PKG_INSTAGRAM
+            if (isIg && root != null) {
+                coverMisses = 0
+                runCatching { updateFeedCover(Detectors.snap(root), fromSync = true) }
+                scheduleCoverSync()
+                return
             }
+            // Null root or another app: could be a transient frame. Retire
+            // only after two consecutive misses so the panel doesn't blink.
+            coverMisses++
+            if (coverMisses >= 2) {
+                removeFeedCover()
+                if (root != null) return // definitely elsewhere: stop ticking
+            }
+            if (feedCover != null || coverMisses < 4) scheduleCoverSync()
         }
     }
 
-    private fun updateFeedCover(snap: Detectors.Snap) {
+    private fun scheduleCoverSync() {
+        if (coverSyncScheduled) return
+        coverSyncScheduled = true
+        handler.postDelayed(coverSync, 600)
+    }
+
+    private fun updateFeedCover(snap: Detectors.Snap, fromSync: Boolean = false) {
+        // Any Instagram activity arms the sync loop; it self-stops when IG
+        // leaves the foreground.
+        if (!fromSync) scheduleCoverSync()
         val want = prefs.blockIgFeedScroll && !passActive() &&
             runCatching { Detectors.igHomeFeedOpen(snap) }.getOrDefault(false)
         if (!want) {
@@ -316,13 +342,11 @@ class FeedGateService : AccessibilityService() {
             feedCoverBottom = bottom
             view.alpha = 0f
             view.animate().alpha(1f).setDuration(160).start()
-            handler.removeCallbacks(coverPoll)
-            handler.postDelayed(coverPoll, 700)
+            scheduleCoverSync()
         }
     }
 
     private fun removeFeedCover() {
-        handler.removeCallbacks(coverPoll)
         val v = feedCover ?: return
         feedCover = null
         feedCoverTop = -1

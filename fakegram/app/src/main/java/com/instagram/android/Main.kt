@@ -32,11 +32,17 @@ class Main : Activity() {
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private lateinit var ticker: TextView
     private var tick = 0
+    /**
+     * Real Instagram emits events constantly (video UI). This ticker fakes
+     * that — but it STOPS after a few ticks so the screen goes completely
+     * silent, reproducing the "quiet feed" case where FeedGate gets no
+     * events at all and the blackout must still attach on its own.
+     */
     private val tickRun = object : Runnable {
         override fun run() {
             tick++
             ticker.text = "t$tick"
-            handler.postDelayed(this, 600)
+            if (tick < 5) handler.postDelayed(this, 600)
         }
     }
 
