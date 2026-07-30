@@ -15,8 +15,8 @@ android {
         // targetSdk stays 34 on purpose: 35+ enforces edge-to-edge and this
         // personal app has no Play Store target-API requirement.
         targetSdk = 34
-        versionCode = 18
-        versionName = "1.18"
+        versionCode = 19
+        versionName = "1.19"
     }
 
     buildFeatures {

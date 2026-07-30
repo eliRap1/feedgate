@@ -71,6 +71,9 @@ object Detectors {
                 "inbox_refreshable_thread_list_recyclerview",
                 "direct_thread_view", "direct_thread_toolbar",
                 "explore_grid_recycler_view", "action_bar_title_view",
+                // Home action-bar logo: present only on the home surface,
+                // which is what identifies home while the feed is loading.
+                "title_logo",
                 "stories_tray_recyclerview", "tray_recyclerview",
             )
         }
@@ -86,8 +89,29 @@ object Detectors {
 
     fun igTabBarPresent(s: Snap) = s.has("feed_tab")
 
-    fun igHomeFeedOpen(s: Snap) =
-        s.sel("feed_tab") && s.vis("feed_tab") && !igClipsViewerOpen(s)
+    /**
+     * Home feed on screen. Two accepted signatures, both dump-verified:
+     *
+     *  1. feed_tab selected + visible (the steady state).
+     *  2. The bottom bar exists but NO tab carries the selected flag, while
+     *     the home action-bar logo is in the tree. Instagram clears every
+     *     tab's selection while the feed is still LOADING (shimmer) — 26 of
+     *     89 snapshots in the 2026-07-30 dump looked exactly like this, and
+     *     rule 1 alone left the feed uncovered for that whole window, which
+     *     is the "doesn't black out when entering Instagram" report.
+     *
+     * Fullscreen surfaces (story viewer, shared reel, DM thread) drop the
+     * bar entirely, so rule 2 cannot catch them.
+     */
+    fun igHomeFeedOpen(s: Snap): Boolean {
+        if (igClipsViewerOpen(s) || igStoryViewerOpen(s)) return false
+        if (!s.has("feed_tab")) return false
+        if (s.sel("feed_tab") && s.vis("feed_tab")) return true
+        val anySelected = s.sel("clips_tab") || s.sel("direct_tab") ||
+            s.sel("search_tab") || s.sel("profile_tab")
+        return !anySelected && s.has("title_logo") &&
+            !igDirectOpen(s) && !igExploreOpen(s)
+    }
 
     fun igStoryViewerOpen(s: Snap) =
         s.vis("reel_viewer_root") || s.vis("reel_viewer_media_container")
@@ -136,6 +160,7 @@ object Detectors {
             "feed_tab", "clips_tab", "direct_tab", "search_tab",
             "clips_viewer_view_pager", "clips_video_container",
             "inbox_refreshable_thread_list_recyclerview", "action_bar_title_view",
+            "title_logo",
         ).forEach { k ->
             append(' ').append(k).append('[')
             val n = s.byId[k]

@@ -120,12 +120,17 @@ class Main : Activity() {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.WHITE)
         }
-        col.addView(TextView(this).apply {
+        col.addView(FrameLayout(this).apply {
             id = R.id.action_bar_title_view
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
-            text = "Instagram"
-            textSize = 24f
-            setPadding(dp(16), dp(12), dp(16), dp(12))
+            addView(TextView(this@Main).apply {
+                id = R.id.title_logo
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+                contentDescription = "Instagram Home feed"
+                text = "Instagram"
+                textSize = 24f
+                setPadding(dp(16), dp(12), dp(16), dp(12))
+            })
         })
         col.addView(LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -145,6 +150,11 @@ class Main : Activity() {
             )
         }, LinearLayout.LayoutParams(MATCH, MATCH))
         setState("home", true, R.id.feed_tab, col)
+        // Real Instagram clears EVERY tab's selected flag while the feed
+        // loads (dump 2026-07-30), then restores it. Replicate that window:
+        // the blackout must cover during it, not only after.
+        select(0)
+        handler.postDelayed({ if (state == "home") select(R.id.feed_tab) }, 3_000)
     }
 
     private fun showReels() {
